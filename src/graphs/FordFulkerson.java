@@ -57,8 +57,8 @@ public class FordFulkerson {
             T reference = adjacencyList.get(0).getEdgeVariable(FLOW_GRAPH_FLOW_VARIABLE_NR);
             double flowValue = reference.doubleValue();
 
-            for(int vertex = 1; vertex < adjacencyList.size(); vertex++) {
-                Edge<T> edge = adjacencyList.get(vertex);
+            for(int i = 1; i < adjacencyList.size(); i++) {
+                Edge<T> edge = adjacencyList.get(i);
                 flowValue += edge.getEdgeVariable(FLOW_GRAPH_FLOW_VARIABLE_NR).doubleValue();
             }
 
