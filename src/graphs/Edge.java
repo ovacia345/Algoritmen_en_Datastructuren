@@ -24,7 +24,37 @@ public class Edge<T extends Number> {
         return edgeVariables;
     }
 
+    public T getEdgeVariable(int edgeVariableNr) {
+        checkInvalidEdgeVariableNr(edgeVariableNr);
+
+        return edgeVariables[edgeVariableNr];
+    }
+
     public void setEdgeVariables(T... edgeVariables) {
+        checkInvalidNrEdgeVariables(edgeVariables.length);
+
         this.edgeVariables = edgeVariables;
+    }
+
+    public void setEdgeVariable(T edgeVariable, int edgeVariableNr) {
+        checkInvalidEdgeVariableNr(edgeVariableNr);
+
+        edgeVariables[edgeVariableNr] = edgeVariable;
+    }
+
+    private void checkInvalidEdgeVariableNr(int edgeVariableNr) {
+        if(edgeVariableNr < 0 || edgeVariableNr >= edgeVariables.length) {
+            throw new IllegalArgumentException(String.format("Edge variable "
+                    + "%d does not exist in edge (%d,%d).", edgeVariableNr,
+                    source, destination));
+        }
+    }
+
+    private void checkInvalidNrEdgeVariables(int nrEdgeVariables) {
+        if(edgeVariables.length != nrEdgeVariables) {
+            throw new IllegalArgumentException(String.format("The edge has "
+                    + "%d edge variables, but %d edge variables are given.",
+                    edgeVariables.length, nrEdgeVariables));
+        }
     }
 }
