@@ -33,6 +33,6 @@ public class Box {
             return true;
         }
 
-        throw new IllegalArgumentException("Argument box has a null pointer");
+        throw new IllegalArgumentException("Argument box has a null pointer.");
     }
 }
