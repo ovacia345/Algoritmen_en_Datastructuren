@@ -1,7 +1,5 @@
 package graphs;
 
-import java.util.Scanner;
-
 /**
  *
  * @author N.C.M. van Nistelrooij
@@ -54,9 +52,5 @@ public class Assignment1 {
             }
         }
         return g;    
-    }
-    
-    public static void main(String[] args) {
-        runAssignment1();
     }
 }
