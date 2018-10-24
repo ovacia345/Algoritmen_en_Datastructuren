@@ -16,6 +16,10 @@ public class Edge<T extends Number> {
         this.edgeVariables = edgeVariables;
     }
 
+    public int getSource() {
+        return source;
+    }
+
     public int getDestination() {
         return destination;
     }
@@ -31,8 +35,6 @@ public class Edge<T extends Number> {
     }
 
     public void setEdgeVariables(T... edgeVariables) {
-        checkInvalidNrEdgeVariables(edgeVariables.length);
-
         this.edgeVariables = edgeVariables;
     }
 
@@ -47,14 +49,6 @@ public class Edge<T extends Number> {
             throw new IllegalArgumentException(String.format("Edge variable "
                     + "%d does not exist in edge (%d,%d).", edgeVariableNr,
                     source, destination));
-        }
-    }
-
-    private void checkInvalidNrEdgeVariables(int nrEdgeVariables) {
-        if(edgeVariables.length != nrEdgeVariables) {
-            throw new IllegalArgumentException(String.format("The edge has "
-                    + "%d edge variables, but %d edge variables are given.",
-                    edgeVariables.length, nrEdgeVariables));
         }
     }
     
