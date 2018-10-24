@@ -19,16 +19,16 @@ public class Graph<T extends Number> {
                     + "number of vertices.");
         }
         if(nrEdgeVariables < 0) {
-            throw new IllegalArgumentException("You cannot have negative "
-                    + "number of edge variables");
+            throw new IllegalArgumentException("You cannot have a negative "
+                    + "number of edge variables.");
         }
         
         this.nrVertices = nrVertices;
         this.nrEdgeVariables = nrEdgeVariables;
         
         adjacencyLists = new List[nrVertices];
-        for(int i = 0; i < nrVertices; i++) {
-            adjacencyLists[i] = new LinkedList<>();
+        for(int vertex = 0; vertex < nrVertices; vertex++) {
+            adjacencyLists[vertex] = new LinkedList<>();
         }
     }
 
@@ -37,15 +37,14 @@ public class Graph<T extends Number> {
     }
 
     public void addEdge(int source, int destination, T... edgeVariables) {
-        if(edgeVariables != null) checkInvalidNrEdgeVariables(edgeVariables.length);
+        checkInvalidVertex(source);
+        checkInvalidVertex(destination);
+        checkInvalidNrEdgeVariables(edgeVariables.length);
+        checkHasNotEdge(source, destination);
 
         Edge<T> edge = new Edge(source, destination, edgeVariables);
         adjacencyLists[source].add(edge);
     }
-
-    public void addEdge(int source, int destination) {
-        addEdge(source, destination, null);
-    }    
     
     public List<Edge<T>> getAdjacencyList(int vertex) {
         checkInvalidVertex(vertex);
@@ -110,6 +109,20 @@ public class Graph<T extends Number> {
         throw new IllegalArgumentException(String.format("Edge (%d,%d) "
                 + "does not exist in the graph.", source, destination));
     }
+
+    public void removeEdge(int source, int destination) {
+        List<Edge<T>> adjacencyList = getAdjacencyList(source);
+
+        for(Edge<T> edge : adjacencyList) {
+            if(edge.getDestination() == destination) {
+                adjacencyList.remove(edge);
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException(String.format("Edge (%d,%d) "
+                + "does not exist in the graph.", source, destination));
+    }
     
     public boolean hasEdge(int source, int destination) {
         List<Edge<T>> adjacencyList = getAdjacencyList(source);
@@ -147,9 +160,9 @@ public class Graph<T extends Number> {
 
     private void checkInvalidNrEdgeVariables(int nrEdgeVariables) {
         if(this.nrEdgeVariables != nrEdgeVariables) {
-            throw new IllegalArgumentException(String.format("The graph has "
-                    + "%d edge variables, but %d edge variables are given.",
-                    this.nrEdgeVariables, nrEdgeVariables));
+            throw new IllegalArgumentException(String.format("The edges of the "
+                    + "graph have %d edge variable(s), but %d edge variable(s) "
+                    + "were given.", this.nrEdgeVariables, nrEdgeVariables));
         }
     }
     
