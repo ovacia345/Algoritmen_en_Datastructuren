@@ -37,7 +37,7 @@ public class Graph<T extends Number> {
     }
 
     public void addEdge(int source, int destination, T... edgeVariables) {
-        checkInvalidNrEdgeVariables(edgeVariables.length);
+        if(edgeVariables != null) checkInvalidNrEdgeVariables(edgeVariables.length);
 
         Edge<T> edge = new Edge(source, destination, edgeVariables);
         adjacencyLists[source].add(edge);
@@ -150,6 +150,16 @@ public class Graph<T extends Number> {
             throw new IllegalArgumentException(String.format("The graph has "
                     + "%d edge variables, but %d edge variables are given.",
                     this.nrEdgeVariables, nrEdgeVariables));
+        }
+    }
+    
+    public void printGraph() {
+        List<Edge<T>> edges ;
+        for(int vertex = 0; vertex< nrVertices; vertex++){
+            edges = getAdjacencyList(vertex);
+            for(int j = 0; j<edges.size(); j++) {
+                edges.get(j).printEdge();
+            }
         }
     }
 }

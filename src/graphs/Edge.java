@@ -57,4 +57,20 @@ public class Edge<T extends Number> {
                     edgeVariables.length, nrEdgeVariables));
         }
     }
+    
+    public void printEdge() {
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        stringBuilder.append(String.format("source: %d\t", source));
+        stringBuilder.append(String.format("Destination: %d\t", destination));
+        
+        if(edgeVariables.length > 0) {
+            stringBuilder.append("Edge Variables:\t");
+            for(T edgeVariable : edgeVariables) {
+                stringBuilder.append(String.format("%f\t", edgeVariable.doubleValue()));
+            }
+        }
+        
+        System.out.println(stringBuilder);
+    }
 }
