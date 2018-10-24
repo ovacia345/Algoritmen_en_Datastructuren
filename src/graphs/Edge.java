@@ -41,7 +41,7 @@ public class Edge<T extends Number> {
     public void setEdgeVariable(T edgeVariable, int edgeVariableNr) {
         checkInvalidEdgeVariableNr(edgeVariableNr);
 
-        edgeVariables[edgeVariableNr] = edgeVariable;
+         edgeVariables[edgeVariableNr] = edgeVariable;
     }
 
     private void checkInvalidEdgeVariableNr(int edgeVariableNr) {
@@ -55,14 +55,9 @@ public class Edge<T extends Number> {
     public void printEdge() {
         StringBuilder stringBuilder = new StringBuilder();
         
-        stringBuilder.append(String.format("source: %d\t", source));
-        stringBuilder.append(String.format("Destination: %d\t", destination));
-        
-        if(edgeVariables.length > 0) {
-            stringBuilder.append("Edge Variables:\t");
-            for(T edgeVariable : edgeVariables) {
-                stringBuilder.append(String.format("%f\t", edgeVariable.doubleValue()));
-            }
+        stringBuilder.append(String.format("%d - %d:", source, destination));        
+        for(T edgeVariable : edgeVariables) {
+            stringBuilder.append(String.format("\t%s", edgeVariable));
         }
         
         System.out.println(stringBuilder);
