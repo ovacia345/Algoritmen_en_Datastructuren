@@ -13,6 +13,8 @@ public class Graph<T extends Number> {
     private final int nrEdgeVariables;
     private final List<Edge<T>>[] adjacencyLists;
 
+    private int nrEdges;
+
     public Graph(int nrVertices, int nrEdgeVariables) {
         if(nrVertices < 0) {
             throw new IllegalArgumentException("You cannot have a negative "
@@ -24,6 +26,7 @@ public class Graph<T extends Number> {
         }
         
         this.nrVertices = nrVertices;
+        nrEdges = 0;
         this.nrEdgeVariables = nrEdgeVariables;
         
         adjacencyLists = new List[nrVertices];
@@ -44,6 +47,8 @@ public class Graph<T extends Number> {
 
         Edge<T> edge = new Edge(source, destination, edgeVariables);
         adjacencyLists[source].add(edge);
+
+        nrEdges++;
     }
     
     public List<Edge<T>> getAdjacencyList(int vertex) {
@@ -118,6 +123,8 @@ public class Graph<T extends Number> {
                 adjacencyList.remove(edge);
                 return;
             }
+
+            nrEdges--;
         }
 
         throw new IllegalArgumentException(String.format("Edge (%d,%d) "
