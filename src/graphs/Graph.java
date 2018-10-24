@@ -45,7 +45,7 @@ public class Graph<T extends Number> {
         checkInvalidNrEdgeVariables(edgeVariables.length);
         checkHasNotEdge(source, destination);
 
-        Edge<T> edge = new Edge(source, destination, edgeVariables);
+        Edge<T> edge = new Edge<>(source, destination, edgeVariables);
         adjacencyLists[source].add(edge);
 
         nrEdges++;
@@ -121,10 +121,10 @@ public class Graph<T extends Number> {
         for(Edge<T> edge : adjacencyList) {
             if(edge.getDestination() == destination) {
                 adjacencyList.remove(edge);
+
+                nrEdges--;
                 return;
             }
-
-            nrEdges--;
         }
 
         throw new IllegalArgumentException(String.format("Edge (%d,%d) "
