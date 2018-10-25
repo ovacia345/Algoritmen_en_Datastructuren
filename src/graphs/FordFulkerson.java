@@ -29,7 +29,7 @@ public class FordFulkerson {
         checkNonPositiveCapacities(graph);
 
         Graph flowGraph = makeFlowGraph(graph);
-        Graph residualGraph = graph;
+        Graph<T> residualGraph = graph;
 
         Edge<T>[] parentEdges = BFS.run(residualGraph, source);
         while(parentEdges[sink] != null) {
@@ -59,7 +59,8 @@ public class FordFulkerson {
 
             for(int i = 1; i < adjacencyList.size(); i++) {
                 Edge<T> edge = adjacencyList.get(i);
-                flowValue += edge.getEdgeVariable(FLOW_GRAPH_FLOW_VARIABLE_NR).doubleValue();
+                T flow = edge.getEdgeVariable(FLOW_GRAPH_FLOW_VARIABLE_NR);
+                flowValue += flow.doubleValue();
             }
 
             return getNumberWithReferenceType(reference, (T) new Double(flowValue));
@@ -73,9 +74,9 @@ public class FordFulkerson {
         Graph flowGraph = new Graph(nrVertices, FLOW_GRAPH_NR_EDGE_VARIABLES);
 
         for(int vertexU = 0; vertexU < nrVertices; vertexU++) {
-            List<Edge<T>> adjacencyListU = graph.getAdjacencyList(vertexU);
+            List<Edge<T>> adjacencyListVertexU = graph.getAdjacencyList(vertexU);
 
-            for(Edge<T> edgeUV : adjacencyListU) {
+            for(Edge<T> edgeUV : adjacencyListVertexU) {
                 int vertexV = edgeUV.getDestination();
 
                 T capacity = edgeUV.getEdgeVariable(INPUT_GRAPH_CAPACITY_VARIABLE_NR);
@@ -89,29 +90,40 @@ public class FordFulkerson {
     }
 
     private static <T extends Number> T getNumberWithReferenceType(T reference, T number) {
-        if(reference.getClass() == number.getClass()) {
-            return number;
-        }
-        if(reference instanceof Double && number instanceof Integer) {
+        if(reference instanceof Double) {
             return (T) new Double(number.doubleValue());
         }
-        if (reference instanceof Integer && number instanceof Double) {
+        if (reference instanceof Integer) {
             return (T) new Integer(number.intValue());
         }
+        if (reference instanceof Byte) {
+            return (T) new Byte(number.byteValue());
+        }
+        if (reference instanceof Short) {
+            return (T) new Short(number.shortValue());
+        }
+        if (reference instanceof Long) {
+            return (T) new Long(number.longValue());
+        }
+        if (reference instanceof Float) {
+            return (T) new Float(number.floatValue());
+        }
+
         throw new IllegalArgumentException(String.format("Type %s is not "
-                + "supported.", number.getClass()));
+                + "supported.", reference.getClass()));
     }
 
     private static <T extends Number> T getPathResidualCapacity(List<Edge<T>> path) {
-        double pathResidualCapacity = Double.MAX_VALUE;
+        T reference = path.get(0).getEdgeVariable(RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
+        double pathResidualCapacity = reference.doubleValue();
 
-        for(Edge<T> edge : path) {
+        for(int i = 1; i < path.size(); i++) {
+            Edge<T> edge = path.get(i);
             T residualCapacity = edge.getEdgeVariable(RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
             pathResidualCapacity = Math.min(pathResidualCapacity,
                     residualCapacity.doubleValue());
         }
 
-        T reference = path.get(0).getEdgeVariable(RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
         return getNumberWithReferenceType(reference, (T) new Double(pathResidualCapacity));
     }
 
@@ -137,10 +149,10 @@ public class FordFulkerson {
             } else {
                 T residualCapacity = getNumberWithReferenceType(capacity,
                     (T) new Double(capacity.doubleValue() - newFlow.doubleValue()));
-                residualGraph.setEdgeVariable(vertexU, vertexV,
-                        residualCapacity, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
+                edge.setEdgeVariable(residualCapacity, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
             }
-            residualGraph.setEdgeVariable(vertexV, vertexU, newFlow, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
+            residualGraph.setEdgeVariable(vertexV, vertexU,
+                    newFlow, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
         } else {
             T[] edgeVariables = flowGraph.getEdgeVariables(vertexV, vertexU);
             T oldFlow = edgeVariables[FLOW_GRAPH_FLOW_VARIABLE_NR];
@@ -156,8 +168,7 @@ public class FordFulkerson {
             if (newFlow.doubleValue() == 0.0d) {
                 residualGraph.removeEdge(vertexU, vertexV);
             } else {
-                residualGraph.setEdgeVariable(vertexU, vertexV,
-                        newFlow, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
+                edge.setEdgeVariable(newFlow, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_VARIABLE_NR);
             }
             T residualCapacity = getNumberWithReferenceType(capacity,
                     (T) new Double(capacity.doubleValue() - newFlow.doubleValue()));
