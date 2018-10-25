@@ -1,4 +1,7 @@
-package graphs;
+package assignment1;
+
+import graphs.FordFulkerson;
+import graphs.Graph;
 
 /**
  *
@@ -6,51 +9,46 @@ package graphs;
  * @author C Amghane
  */
 public class Assignment1 {
-    
-    public static int nrOfBoxes;
-    public static Box[] Boxes;
-    
-    public static Box box;
-    public static double xLength,yLength,zLength;
-    public static Graph graph;
     public static void runAssignment1() {
-        
-        nrOfBoxes = IOHandler.getIntegers();
-        Boxes = new Box[nrOfBoxes];
+        int nrOfBoxes = IOHandler.getInteger();
+        Box[] boxes = new Box[nrOfBoxes];
         for(int i = 0; i< nrOfBoxes; i++) { 
-            xLength = IOHandler.getDouble();
-            yLength = IOHandler.getDouble();
-            zLength = IOHandler.getDouble();
-            box = new Box(xLength,yLength,zLength);
-            Boxes[i] = box;   
+            double xLength = IOHandler.getDouble();
+            double yLength = IOHandler.getDouble();
+            double zLength = IOHandler.getDouble();
+            Box box = new Box(xLength,yLength,zLength);
+            boxes[i] = box;
         }  
         
-        graph = createGraph();
-        graph.printGraph();
+        Graph<Integer> graph = createGraph(nrOfBoxes, boxes);
+
+        Graph<Integer> flowGraph = FordFulkerson.run(graph,
+                0, graph.getNrVertices() - 1);
+        Integer flowValue = FordFulkerson.getFlowValue(flowGraph, 0);
         
-        
+        IOHandler.print(Integer.toString(nrOfBoxes - flowValue));
     }
     
-    public static Graph createGraph() {
+    private static Graph<Integer> createGraph(int nrOfBoxes, Box[] boxes) {
         int nrOfVertices = nrOfBoxes * 2 + 2; // bipartite, +sink +source
-        Graph<Integer> g = new Graph<>(nrOfVertices, 1); // firstBox = souce, lastBox = sink;
-        int firstBox = 0;
-        int lastBox = nrOfVertices-1;
+        Graph<Integer> graph = new Graph<>(nrOfVertices, 1); // source = souce, sink = sink;
+        int source = 0;
+        int sink = nrOfVertices-1;
         //source connections  
-        for(int i  = 1 ; i < nrOfBoxes + 1; i++) {
-            g.addEdge(firstBox, firstBox + i,1);
+        for(int box  = 1 ; box <= nrOfBoxes; box++) {
+            graph.addEdge(source, box,1);
         }
         //sink connections
-        for(int j = lastBox - 1; j > nrOfBoxes ; j--){
-            g.addEdge(j, lastBox,1);
+        for(int box = sink - 1; box > nrOfBoxes ; box--){
+            graph.addEdge(box, sink,1);
         }
-        for(int i = 0; i < nrOfBoxes; i++){
-            for(int j=0; j < nrOfBoxes; j++){ 
-                if(i != j && Boxes[i].fitsIn(Boxes[j])) {
-                    g.addEdge(i+1, (j+1) * 2 + nrOfBoxes - (j+1), 1);    // x number of boxes * 2 - nr of current box because of bipartite graph 
+        for(int i = 0; i < nrOfBoxes - 1; i++){
+            for(int j=i + 1; j < nrOfBoxes; j++){
+                if(boxes[i].fitsIn(boxes[j])) {
+                    graph.addEdge(i+1, j+1 + nrOfBoxes, 1);    // x number of boxes * 2 - nr of current box because of bipartite graph
                 }          
             }
         }
-        return g;    
+        return graph;
     }
 }

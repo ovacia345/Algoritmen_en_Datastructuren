@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package graphs;
+package assignment1;
 
 import java.util.Scanner;
 
@@ -31,11 +26,15 @@ public class IOHandler {
         return line;
     }
     
-    public static int getIntegers() {
+    public static int getInteger() {
         return input.nextInt();
     }
     
     public static double getDouble() {
         return input.nextDouble();
+    }
+
+    public static void print(String string) {
+        System.out.println(string);
     }
 }

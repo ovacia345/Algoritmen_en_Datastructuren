@@ -1,4 +1,6 @@
-package graphs;
+package assignment1;
+
+import assignment1.Assignment1;
 
 /**
  *
