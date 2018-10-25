@@ -16,14 +16,8 @@ public class Graph<T extends Number> {
     private int nrEdges;
 
     public Graph(int nrVertices, int nrEdgeVariables) {
-        if(nrVertices < 0) {
-            throw new IllegalArgumentException("You cannot have a negative "
-                    + "number of vertices.");
-        }
-        if(nrEdgeVariables < 0) {
-            throw new IllegalArgumentException("You cannot have a negative "
-                    + "number of edge variables.");
-        }
+        checkNegativeNrVertices(nrVertices);
+        checkNegativeNrEdgeVariables(nrEdgeVariables);
         
         this.nrVertices = nrVertices;
         nrEdges = 0;
@@ -43,7 +37,7 @@ public class Graph<T extends Number> {
         checkInvalidVertex(source);
         checkInvalidVertex(destination);
         checkInvalidNrEdgeVariables(edgeVariables.length);
-        checkHasNotEdge(source, destination);
+        checkHasEdge(source, destination);
 
         Edge<T> edge = new Edge<>(source, destination, edgeVariables);
         adjacencyLists[source].add(edge);
@@ -66,8 +60,7 @@ public class Graph<T extends Number> {
             }
         }
         
-        throw new IllegalArgumentException(String.format("Edge (%d,%d) "
-                + "does not exist in the graph.", source, destination));
+        nonExistingEdge(source, destination);
     }
     
     public T getEdgeVariable(int source, int destination, int edgeVariableNr) {
@@ -79,8 +72,7 @@ public class Graph<T extends Number> {
             }
         }
 
-        throw new IllegalArgumentException(String.format("Edge (%d,%d) "
-                + "does not exist in the graph.", source, destination));
+        nonExistingEdge(source, destination);
     }
     
     public void setEdgeVariables(int source, int destination,
@@ -96,8 +88,7 @@ public class Graph<T extends Number> {
             }
         }
         
-        throw new IllegalArgumentException(String.format("Edge (%d,%d) "
-                + "does not exist in the graph.", source, destination));
+        nonExistingEdge(source, destination);
     }
 
     public void setEdgeVariable(int source, int destination, T edgeVariable,
@@ -111,8 +102,7 @@ public class Graph<T extends Number> {
             }
         }
 
-        throw new IllegalArgumentException(String.format("Edge (%d,%d) "
-                + "does not exist in the graph.", source, destination));
+        nonExistingEdge(source, destination);
     }
 
     public void removeEdge(int source, int destination) {
@@ -127,8 +117,7 @@ public class Graph<T extends Number> {
             }
         }
 
-        throw new IllegalArgumentException(String.format("Edge (%d,%d) "
-                + "does not exist in the graph.", source, destination));
+        nonExistingEdge(source, destination);
     }
     
     public boolean hasEdge(int source, int destination) {
@@ -147,8 +136,31 @@ public class Graph<T extends Number> {
         return nrVertices;
     }
     
+    public int getNrEdges() {
+        return nrEdges;
+    }
+    
     public int getNrEdgeVariables() {
         return nrEdgeVariables;
+    }
+    
+    private static void nonExistingEdge(int source, int destination) {       
+        throw new IllegalArgumentException(String.format("Edge (%d,%d) "
+                + "does not exist in the graph.", source, destination));
+    }
+    
+    private static void checkNegativeNrVertices(int nrVertices) {
+        if(nrVertices < 0) {
+            throw new IllegalArgumentException("You cannot have a negative "
+                    + "number of vertices.");
+        }  
+    }
+    
+    private static void checkNegativeNrEdgeVariables(int nrEdgeVariables) {        
+        if(nrEdgeVariables < 0) {
+            throw new IllegalArgumentException("You cannot have a negative "
+                    + "number of edge variables.");
+        }    
     }
 
     private void checkInvalidVertex(int vertex) {
@@ -158,7 +170,7 @@ public class Graph<T extends Number> {
         }
     }
 
-    private void checkHasNotEdge(int source, int destination) {
+    private void checkHasEdge(int source, int destination) {
         if(hasEdge(source, destination)) {
             throw new IllegalArgumentException(String.format("Edge (%d,%d) "
                     + "already exists in the graph.", source, destination));
