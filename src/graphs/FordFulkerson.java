@@ -8,20 +8,26 @@ import java.util.List;
  * @author C Amghane
  */
 public class FordFulkerson {
-    private final static int INPUT_GRAPH_NR_OF_EDGE_VARIABLES = 1;
-    private final static int INPUT_GRAPH_CAPACITY_EDGE_VARIABLE_INDEX = 0;
+    private final int inputGraphNrOfEdgeVariables;
+    private final int inputGraphCapacityEdgeVariableIndex;
 
-    private final static int FLOW_GRAPH_NR_OF_EDGE_VARIABLES = 2;
-    private final static int FLOW_GRAPH_FLOW_EDGE_VARIABLE_INDEX = 0;
-    private final static int FLOW_GRAPH_CAPACITY_EDGE_VARIABLE_INDEX = 1;
+    private final int flowGraphNrOfEdgeVariables;
+    private final int flowGraphFlowEdgeVariableIndex;
+    private final int flowGraphCapacityEdgeVariableIndex;
 
-    private final static int RESIDUAL_GRAPH_NR_OF_EDGE_VARIABLES = 1;
-    private final static int RESIDUAL_GRAPH_RESIDUAL_CAPACITY_EDGE_VARIABLE_INDEX = 0;
+    public FordFulkerson(int inputGraphNrOfEdgeVariables, int inputGraphCapacityEdgeVariableIndex) {
+        this.inputGraphNrOfEdgeVariables = inputGraphNrOfEdgeVariables;
+        this.inputGraphCapacityEdgeVariableIndex = inputGraphCapacityEdgeVariableIndex;
 
-    public static <T extends Number> Graph<T> run(Graph<T> graph, int source,
+        flowGraphNrOfEdgeVariables = inputGraphNrOfEdgeVariables + 1;
+        flowGraphFlowEdgeVariableIndex = inputGraphCapacityEdgeVariableIndex;
+        flowGraphCapacityEdgeVariableIndex = flowGraphFlowEdgeVariableIndex + 1;
+    }
+
+    public <T extends Number> Graph<T> run(Graph<T> graph, int source,
             int sink) {
         checkNullGraph(graph);
-        checkInvalidNrOfEdgeVariables(graph, INPUT_GRAPH_NR_OF_EDGE_VARIABLES);
+        checkInvalidNrOfEdgeVariables(graph, inputGraphNrOfEdgeVariables);
         checkInvalidVertex(graph, source);
         checkInvalidVertex(graph, sink);
         checkSourceEqualToSink(source, sink);
@@ -46,9 +52,15 @@ public class FordFulkerson {
         return flowGraph;
     }
 
-    public static <T extends Number> T getFlowValue(Graph<T> flowGraph, int source) {
+    public static <T extends Number> Graph<T> runStatic(Graph<T> graph, int source,
+            int sink) {
+        FordFulkerson fordFulkerson = new FordFulkerson(1, 0);
+        return fordFulkerson.run(graph, source, sink);
+    }
+
+    public <T extends Number> T getFlowValue(Graph<T> flowGraph, int source) {
         checkNullGraph(flowGraph);
-        checkInvalidNrOfEdgeVariables(flowGraph, FLOW_GRAPH_NR_OF_EDGE_VARIABLES);
+        checkInvalidNrOfEdgeVariables(flowGraph, flowGraphNrOfEdgeVariables);
         checkInvalidVertex(flowGraph, source);
 
         List<Edge<T>> adjacencyList = flowGraph.getAdjacencyList(source);
@@ -56,20 +68,25 @@ public class FordFulkerson {
         if(!adjacencyList.isEmpty()) {
             double flowValue = 0.0d;
             for(Edge<T> edge : adjacencyList) {
-                T flow = edge.getEdgeVariable(FLOW_GRAPH_FLOW_EDGE_VARIABLE_INDEX);
+                T flow = edge.getEdgeVariable(flowGraphFlowEdgeVariableIndex);
                 flowValue += flow.doubleValue();
             }
 
-            T reference = adjacencyList.get(0).getEdgeVariable(FLOW_GRAPH_FLOW_EDGE_VARIABLE_INDEX);
+            T reference = adjacencyList.get(0).getEdgeVariable(flowGraphFlowEdgeVariableIndex);
             return getNumberWithReferenceType((T) new Double(flowValue), reference);
         }
 
         throw new IllegalArgumentException("The degree of the source vertex is 0.");
     }
 
-    private static <T extends Number> Graph makeFlowGraph(Graph<T> graph) {
+    public static <T extends Number> T getFlowValueStatic(Graph<T> flowGraph, int source) {
+        FordFulkerson fordFulkerson = new FordFulkerson(1, 0);
+        return fordFulkerson.getFlowValue(flowGraph, source);
+    }
+
+    private <T extends Number> Graph makeFlowGraph(Graph<T> graph) {
         int nrOfVertices = graph.getNrOfVertices();
-        Graph flowGraph = new Graph(nrOfVertices, FLOW_GRAPH_NR_OF_EDGE_VARIABLES);
+        Graph flowGraph = new Graph(nrOfVertices, flowGraphNrOfEdgeVariables);
 
         for(int vertexU = 0; vertexU < nrOfVertices; vertexU++) {
             List<Edge<T>> adjacencyListVertexU = graph.getAdjacencyList(vertexU);
@@ -77,23 +94,32 @@ public class FordFulkerson {
             for(Edge<T> edgeUV : adjacencyListVertexU) {
                 int vertexV = edgeUV.getDestination();
                 
-                Number[] emptyEdgeVariables = new Number[FLOW_GRAPH_NR_OF_EDGE_VARIABLES];
-                flowGraph.addEdge(vertexU, vertexV, emptyEdgeVariables);
+                Number[] edgeVariables = new Number[flowGraphNrOfEdgeVariables];
+                for(int inputGraphEdgeVariableIndex = 0, flowGraphEdgeVariableIndex = 0;
+                        flowGraphEdgeVariableIndex < flowGraphNrOfEdgeVariables;
+                        inputGraphEdgeVariableIndex++, flowGraphEdgeVariableIndex++) {
+                    if(flowGraphEdgeVariableIndex == flowGraphFlowEdgeVariableIndex) {
+                        flowGraphEdgeVariableIndex++;
+                    }
 
-                T capacity = edgeUV.getEdgeVariable(INPUT_GRAPH_CAPACITY_EDGE_VARIABLE_INDEX);
-                flowGraph.setEdgeVariable(vertexU, vertexV, capacity, FLOW_GRAPH_CAPACITY_EDGE_VARIABLE_INDEX);
+                    edgeVariables[flowGraphEdgeVariableIndex] = edgeUV.getEdgeVariable(
+                            inputGraphEdgeVariableIndex);
+                }
 
-                T flow = getNumberWithReferenceType((T) new Integer(0), capacity);
-                flowGraph.setEdgeVariable(vertexU, vertexV, flow, FLOW_GRAPH_FLOW_EDGE_VARIABLE_INDEX);
+                T reference = edgeUV.getEdgeVariable(inputGraphCapacityEdgeVariableIndex);
+                T flow = getNumberWithReferenceType((T) new Integer(0), reference);
+                edgeVariables[flowGraphFlowEdgeVariableIndex] = flow;
+
+                flowGraph.addEdge(vertexU, vertexV, edgeVariables);
             }
         }
 
         return flowGraph;
     }
 
-    private static <T extends Number> Graph makeResidualGraph(Graph<T> graph) {
+    private <T extends Number> Graph makeResidualGraph(Graph<T> graph) {
         int nrOfVertices = graph.getNrOfVertices();
-        Graph residualGraph = new Graph(nrOfVertices, RESIDUAL_GRAPH_NR_OF_EDGE_VARIABLES);
+        Graph residualGraph = new Graph(nrOfVertices, 1);
 
         for(int vertexU = 0; vertexU < nrOfVertices; vertexU++) {
             List<Edge<T>> adjacencyListVertexU = graph.getAdjacencyList(vertexU);
@@ -101,12 +127,8 @@ public class FordFulkerson {
             for(Edge<T> edgeUV : adjacencyListVertexU) {
                 int vertexV = edgeUV.getDestination();
 
-                Number[] emptyEdgeVariables = new Number[RESIDUAL_GRAPH_NR_OF_EDGE_VARIABLES];
-                residualGraph.addEdge(vertexU, vertexV, emptyEdgeVariables);
-
-                T residualCapacity = edgeUV.getEdgeVariable(INPUT_GRAPH_CAPACITY_EDGE_VARIABLE_INDEX);
-                residualGraph.setEdgeVariable(vertexU, vertexV,
-                        residualCapacity, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_EDGE_VARIABLE_INDEX);
+                T residualCapacity = edgeUV.getEdgeVariable(inputGraphCapacityEdgeVariableIndex);
+                residualGraph.addEdge(vertexU, vertexV, residualCapacity);
             }
         }
 
@@ -138,11 +160,11 @@ public class FordFulkerson {
     }
 
     private static <T extends Number> T getPathResidualCapacity(List<Edge<T>> path) {
-        T reference = path.get(0).getEdgeVariable(RESIDUAL_GRAPH_RESIDUAL_CAPACITY_EDGE_VARIABLE_INDEX);
+        T reference = path.get(0).getEdgeVariable(0);
         double pathResidualCapacity = reference.doubleValue();
 
         for(Edge<T> edge : path) {
-            T residualCapacity = edge.getEdgeVariable(RESIDUAL_GRAPH_RESIDUAL_CAPACITY_EDGE_VARIABLE_INDEX);
+            T residualCapacity = edge.getEdgeVariable(0);
             pathResidualCapacity = Math.min(pathResidualCapacity,
                     residualCapacity.doubleValue());
         }
@@ -150,24 +172,23 @@ public class FordFulkerson {
         return getNumberWithReferenceType((T) new Double(pathResidualCapacity), reference);
     }
 
-    private static <T extends Number> void augmentFlow(Graph<T> flowGraph,
+    private <T extends Number> void augmentFlow(Graph<T> flowGraph,
             Graph residualGraph, Edge edge, T pathResidualCapacity) {
         int vertexU = edge.getSource();
         int vertexV = edge.getDestination();
 
         if (flowGraph.hasEdge(vertexU, vertexV)) {
             T[] edgeVariables = flowGraph.getEdgeVariables(vertexU, vertexV);
-            T oldFlow = edgeVariables[FLOW_GRAPH_FLOW_EDGE_VARIABLE_INDEX];
-            T capacity = edgeVariables[FLOW_GRAPH_CAPACITY_EDGE_VARIABLE_INDEX];
+            T oldFlow = edgeVariables[flowGraphFlowEdgeVariableIndex];
+            T capacity = edgeVariables[flowGraphCapacityEdgeVariableIndex];
             if (oldFlow.doubleValue() == 0.0d) {
-                Number[] emptyEdgeVariables = new Number[RESIDUAL_GRAPH_NR_OF_EDGE_VARIABLES];
-                residualGraph.addEdge(vertexV, vertexU, emptyEdgeVariables);
+                residualGraph.addEdge(vertexV, vertexU, 0);
             }
 
             T newFlow = getNumberWithReferenceType(
                     (T) new Double(oldFlow.doubleValue() + pathResidualCapacity.doubleValue()),
                     capacity);
-            flowGraph.setEdgeVariable(vertexU, vertexV, newFlow, FLOW_GRAPH_FLOW_EDGE_VARIABLE_INDEX);
+            flowGraph.setEdgeVariable(vertexU, vertexV, newFlow, flowGraphFlowEdgeVariableIndex);
 
             if (newFlow.doubleValue() == capacity.doubleValue()) {
                 residualGraph.removeEdge(vertexU, vertexV);
@@ -175,34 +196,33 @@ public class FordFulkerson {
                 T residualCapacity = getNumberWithReferenceType(
                         (T) new Double(capacity.doubleValue() - newFlow.doubleValue()),
                         capacity);
-                edge.setEdgeVariable(residualCapacity, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_EDGE_VARIABLE_INDEX);
+                edge.setEdgeVariable(residualCapacity, 0);
             }
             residualGraph.setEdgeVariable(vertexV, vertexU,
-                    newFlow, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_EDGE_VARIABLE_INDEX);
+                    newFlow, 0);
         } else {
             T[] edgeVariables = flowGraph.getEdgeVariables(vertexV, vertexU);
-            T oldFlow = edgeVariables[FLOW_GRAPH_FLOW_EDGE_VARIABLE_INDEX];
-            T capacity = edgeVariables[FLOW_GRAPH_CAPACITY_EDGE_VARIABLE_INDEX];
+            T oldFlow = edgeVariables[flowGraphFlowEdgeVariableIndex];
+            T capacity = edgeVariables[flowGraphCapacityEdgeVariableIndex];
             if (oldFlow.doubleValue() == capacity.doubleValue()) {
-                Number[] emptyEdgeVariables = new Number[RESIDUAL_GRAPH_NR_OF_EDGE_VARIABLES];
-                residualGraph.addEdge(vertexV, vertexU, emptyEdgeVariables);
+                residualGraph.addEdge(vertexV, vertexU, 0);
             }
 
             T newFlow = getNumberWithReferenceType(
                     (T) new Double(oldFlow.doubleValue() - pathResidualCapacity.doubleValue()),
                     capacity);
-            flowGraph.setEdgeVariable(vertexV, vertexU, newFlow, FLOW_GRAPH_FLOW_EDGE_VARIABLE_INDEX);
+            flowGraph.setEdgeVariable(vertexV, vertexU, newFlow, flowGraphFlowEdgeVariableIndex);
 
             if (newFlow.doubleValue() == 0.0d) {
                 residualGraph.removeEdge(vertexU, vertexV);
             } else {
-                edge.setEdgeVariable(newFlow, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_EDGE_VARIABLE_INDEX);
+                edge.setEdgeVariable(newFlow, 0);
             }
             T residualCapacity = getNumberWithReferenceType(
                     (T) new Double(capacity.doubleValue() - newFlow.doubleValue()),
                     capacity);
             residualGraph.setEdgeVariable(vertexV, vertexU,
-                    residualCapacity, RESIDUAL_GRAPH_RESIDUAL_CAPACITY_EDGE_VARIABLE_INDEX);
+                    residualCapacity, 0);
         }
     }
 
@@ -250,11 +270,11 @@ public class FordFulkerson {
         }
     }
 
-    private static <T extends Number> void checkNonPositiveCapacities(Graph<T> graph) {
+    private <T extends Number> void checkNonPositiveCapacities(Graph<T> graph) {
         int nrOfVertices = graph.getNrOfVertices();
         for (int vertex = 0; vertex < nrOfVertices; vertex++) {
             for (Edge<T> edge : graph.getAdjacencyList(vertex)) {
-                T capacity = edge.getEdgeVariable(INPUT_GRAPH_CAPACITY_EDGE_VARIABLE_INDEX);
+                T capacity = edge.getEdgeVariable(inputGraphCapacityEdgeVariableIndex);
                 if (capacity.doubleValue() <= 0.0d) {
                     throw new IllegalArgumentException("Non-positive capacities"
                             + " are not allowed.");
