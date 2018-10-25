@@ -42,9 +42,9 @@ public class Assignment1 {
         for(int box = sink - 1; box > nrOfBoxes ; box--){
             graph.addEdge(box, sink,1);
         }
-        for(int i = 0; i < nrOfBoxes - 1; i++){
-            for(int j=i + 1; j < nrOfBoxes; j++){
-                if(boxes[i].fitsIn(boxes[j])) {
+        for(int i = 0; i < nrOfBoxes; i++){
+            for(int j=0; j < nrOfBoxes; j++){
+                if(i != j && boxes[i].fitsIn(boxes[j])) {
                     graph.addEdge(i+1, j+1 + nrOfBoxes, 1);    // x number of boxes * 2 - nr of current box because of bipartite graph
                 }          
             }
