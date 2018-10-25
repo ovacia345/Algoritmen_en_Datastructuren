@@ -1,7 +1,6 @@
 package assignment1;
 
-import graphs.FordFulkerson;
-import graphs.Graph;
+import graphs.*;
 
 /**
  *
