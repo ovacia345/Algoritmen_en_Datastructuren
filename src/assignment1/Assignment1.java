@@ -23,7 +23,7 @@ public class Assignment1 {
         Graph<Integer> graph = createGraph(nrOfBoxes, boxes);
 
         Graph<Integer> flowGraph = FordFulkerson.run(graph,
-                0, graph.getNrVertices() - 1);
+                0, graph.getNrOfVertices() - 1);
         Integer flowValue = FordFulkerson.getFlowValue(flowGraph, 0);
         
         IOHandler.print(Integer.toString(nrOfBoxes - flowValue));

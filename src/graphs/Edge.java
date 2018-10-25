@@ -28,26 +28,26 @@ public class Edge<T extends Number> {
         return edgeVariables;
     }
 
-    public T getEdgeVariable(int edgeVariableNr) {
-        checkInvalidEdgeVariableNr(edgeVariableNr);
+    public T getEdgeVariable(int edgeVariableIndex) {
+        checkInvalidEdgeVariableIndex(edgeVariableIndex);
 
-        return edgeVariables[edgeVariableNr];
+        return edgeVariables[edgeVariableIndex];
     }
 
     public void setEdgeVariables(T... edgeVariables) {
         this.edgeVariables = edgeVariables;
     }
 
-    public void setEdgeVariable(T edgeVariable, int edgeVariableNr) {
-        checkInvalidEdgeVariableNr(edgeVariableNr);
+    public void setEdgeVariable(T edgeVariable, int edgeVariableIndex) {
+        checkInvalidEdgeVariableIndex(edgeVariableIndex);
 
-         edgeVariables[edgeVariableNr] = edgeVariable;
+        edgeVariables[edgeVariableIndex] = edgeVariable;
     }
 
-    private void checkInvalidEdgeVariableNr(int edgeVariableNr) {
-        if(edgeVariableNr < 0 || edgeVariableNr >= edgeVariables.length) {
+    private void checkInvalidEdgeVariableIndex(int edgeVariableIndex) {
+        if(edgeVariableIndex < 0 || edgeVariableIndex >= edgeVariables.length) {
             throw new IllegalArgumentException(String.format("Edge variable "
-                    + "%d does not exist in edge (%d,%d).", edgeVariableNr,
+                    + "%d does not exist in edge (%d,%d).", edgeVariableIndex,
                     source, destination));
         }
     }

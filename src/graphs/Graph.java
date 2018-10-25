@@ -9,40 +9,40 @@ import java.util.List;
  * @author C Amghane
  */
 public class Graph<T extends Number> {
-    private final int nrVertices;
-    private final int nrEdgeVariables;
+    private final int nrOfVertices;
+    private final int nrOfEdgeVariables;
     private final List<Edge<T>>[] adjacencyLists;
 
-    private int nrEdges;
+    private int nrOfEdges;
 
-    public Graph(int nrVertices, int nrEdgeVariables) {
-        checkNegativeNrVertices(nrVertices);
-        checkNegativeNrEdgeVariables(nrEdgeVariables);
+    public Graph(int nrOfVertices, int nrOfEdgeVariables) {
+        checkNegativeNrOfVertices(nrOfVertices);
+        checkNegativeNrOfEdgeVariables(nrOfEdgeVariables);
         
-        this.nrVertices = nrVertices;
-        nrEdges = 0;
-        this.nrEdgeVariables = nrEdgeVariables;
+        this.nrOfVertices = nrOfVertices;
+        nrOfEdges = 0;
+        this.nrOfEdgeVariables = nrOfEdgeVariables;
         
-        adjacencyLists = new List[nrVertices];
-        for(int vertex = 0; vertex < nrVertices; vertex++) {
+        adjacencyLists = new List[nrOfVertices];
+        for(int vertex = 0; vertex < nrOfVertices; vertex++) {
             adjacencyLists[vertex] = new LinkedList<>();
         }
     }
 
-    public Graph(int nrVertices) {
-        this(nrVertices, 0);
+    public Graph(int nrOfVertices) {
+        this(nrOfVertices, 0);
     }
 
     public void addEdge(int source, int destination, T... edgeVariables) {
         checkInvalidVertex(source);
         checkInvalidVertex(destination);
-        checkInvalidNrEdgeVariables(edgeVariables.length);
-        checkHasEdge(source, destination);
+        checkInvalidNrOfEdgeVariables(edgeVariables.length);
+        checkAlreadyHasEdge(source, destination);
 
         Edge<T> edge = new Edge<>(source, destination, edgeVariables);
         adjacencyLists[source].add(edge);
 
-        nrEdges++;
+        nrOfEdges++;
     }
     
     public List<Edge<T>> getAdjacencyList(int vertex) {
@@ -64,12 +64,12 @@ public class Graph<T extends Number> {
                 + "does not exist in the graph.", source, destination));
     }
     
-    public T getEdgeVariable(int source, int destination, int edgeVariableNr) {
+    public T getEdgeVariable(int source, int destination, int edgeVariableIndex) {
         List<Edge<T>> adjacencyList = getAdjacencyList(source);
 
         for(Edge<T> edge : adjacencyList) {
             if(edge.getDestination() == destination) {
-                return edge.getEdgeVariable(edgeVariableNr);
+                return edge.getEdgeVariable(edgeVariableIndex);
             }
         }
 
@@ -79,7 +79,7 @@ public class Graph<T extends Number> {
     
     public void setEdgeVariables(int source, int destination,
             T... edgeVariables) {
-        checkInvalidNrEdgeVariables(edgeVariables.length);
+        checkInvalidNrOfEdgeVariables(edgeVariables.length);
         
         List<Edge<T>> adjacencyList = getAdjacencyList(source);
         
@@ -95,12 +95,12 @@ public class Graph<T extends Number> {
     }
 
     public void setEdgeVariable(int source, int destination, T edgeVariable,
-            int edgeVariableNr) {
+            int edgeVariableIndex) {
         List<Edge<T>> adjacencyList = getAdjacencyList(source);
 
         for(Edge<T> edge : adjacencyList) {
             if(edge.getDestination() == destination) {
-                edge.setEdgeVariable(edgeVariable, edgeVariableNr);
+                edge.setEdgeVariable(edgeVariable, edgeVariableIndex);
                 return;
             }
         }
@@ -116,7 +116,7 @@ public class Graph<T extends Number> {
             if(edge.getDestination() == destination) {
                 adjacencyList.remove(edge);
 
-                nrEdges--;
+                nrOfEdges--;
                 return;
             }
         }
@@ -137,57 +137,57 @@ public class Graph<T extends Number> {
         return false;
     }
     
-    public int getNrVertices() {
-        return nrVertices;
+    public int getNrOfVertices() {
+        return nrOfVertices;
     }
     
-    public int getNrEdges() {
-        return nrEdges;
+    public int getNrOfEdges() {
+        return nrOfEdges;
     }
     
-    public int getNrEdgeVariables() {
-        return nrEdgeVariables;
+    public int getNrOfEdgeVariables() {
+        return nrOfEdgeVariables;
     }
     
-    private static void checkNegativeNrVertices(int nrVertices) {
-        if(nrVertices < 0) {
+    private static void checkNegativeNrOfVertices(int nrOfVertices) {
+        if(nrOfVertices < 0) {
             throw new IllegalArgumentException("You cannot have a negative "
                     + "number of vertices.");
         }  
     }
     
-    private static void checkNegativeNrEdgeVariables(int nrEdgeVariables) {        
-        if(nrEdgeVariables < 0) {
+    private static void checkNegativeNrOfEdgeVariables(int nrOfEdgeVariables) {
+        if(nrOfEdgeVariables < 0) {
             throw new IllegalArgumentException("You cannot have a negative "
                     + "number of edge variables.");
         }    
     }
 
     private void checkInvalidVertex(int vertex) {
-        if(vertex < 0 || vertex >= nrVertices) {
+        if(vertex < 0 || vertex >= nrOfVertices) {
             throw new IllegalArgumentException(String.format("Vertex %d does "
                     + "not exist in the graph.", vertex));
         }
     }
 
-    private void checkHasEdge(int source, int destination) {
+    private void checkAlreadyHasEdge(int source, int destination) {
         if(hasEdge(source, destination)) {
             throw new IllegalArgumentException(String.format("Edge (%d,%d) "
                     + "already exists in the graph.", source, destination));
         }
     }
 
-    private void checkInvalidNrEdgeVariables(int nrEdgeVariables) {
-        if(this.nrEdgeVariables != nrEdgeVariables) {
+    private void checkInvalidNrOfEdgeVariables(int nrOfEdgeVariables) {
+        if(this.nrOfEdgeVariables != nrOfEdgeVariables) {
             throw new IllegalArgumentException(String.format("The edges of the "
                     + "graph have %d edge variable(s), but %d edge variable(s) "
-                    + "were given.", this.nrEdgeVariables, nrEdgeVariables));
+                    + "were given.", this.nrOfEdgeVariables, nrOfEdgeVariables));
         }
     }
     
     public void printGraph() {
         List<Edge<T>> edges ;
-        for(int vertex = 0; vertex< nrVertices; vertex++){
+        for(int vertex = 0; vertex< nrOfVertices; vertex++){
             edges = getAdjacencyList(vertex);
             for(int j = 0; j<edges.size(); j++) {
                 edges.get(j).printEdge();

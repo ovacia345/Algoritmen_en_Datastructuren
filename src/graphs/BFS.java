@@ -16,13 +16,13 @@ public class BFS {
 
     public static <T extends Number> Edge<T>[] run(Graph<T> graph, int source) {
         checkNullGraph(graph);
-        int nrVertices = graph.getNrVertices();
-        checkInvalidVertex(nrVertices, source);
+        int nrOfVertices = graph.getNrOfVertices();
+        checkInvalidVertex(nrOfVertices, source);
 
-        Color[] colors = new Color[nrVertices];
-        Edge<T>[] parentEdges = new Edge[nrVertices];
+        Color[] colors = new Color[nrOfVertices];
+        Edge<T>[] parentEdges = new Edge[nrOfVertices];
 
-        for(int vertex = 0; vertex < nrVertices; vertex++) {
+        for(int vertex = 0; vertex < nrOfVertices; vertex++) {
             colors[vertex] = Color.WHITE;
         }
 
@@ -51,18 +51,18 @@ public class BFS {
 
     public static <T extends Number> List<Edge<T>> getPath(Edge<T>[] parentEdges,
             int lastVertex) {
-        int nrVertices = parentEdges.length;
+        int nrOfVertices = parentEdges.length;
 
-        checkInvalidVertex(nrVertices, lastVertex);
-        for (int child = 0; child < nrVertices; child++) {
+        checkInvalidVertex(nrOfVertices, lastVertex);
+        for (int child = 0; child < nrOfVertices; child++) {
             Edge<T> parentEdge = parentEdges[child];
 
             if (parentEdge != null) {
                 int parent = parentEdge.getSource();
-                checkInvalidVertex(nrVertices, parent);
+                checkInvalidVertex(nrOfVertices, parent);
 
                 int destination = parentEdge.getDestination();
-                checkNotEqualDestinationChild(destination, child);
+                checkDestinationNotEqualToChild(destination, child);
             }
         }
 
@@ -98,14 +98,14 @@ public class BFS {
         }
     }
 
-    private static void checkInvalidVertex(int nrVertices, int vertex) {
-        if(vertex < 0 || vertex >= nrVertices) {
+    private static void checkInvalidVertex(int nrOfVertices, int vertex) {
+        if(vertex < 0 || vertex >= nrOfVertices) {
             throw new IllegalArgumentException(String.format("Vertex %d does "
                     + "not exist in the graph.", vertex));
         }
     }
 
-    private static void checkNotEqualDestinationChild(int destination, int child) {
+    private static void checkDestinationNotEqualToChild(int destination, int child) {
         if(destination != child) {
             throw new IllegalArgumentException(String.format("Destination must "
                     + "be vertex %d, but is vertex %d.", destination, child));
