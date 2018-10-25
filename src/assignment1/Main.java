@@ -1,7 +1,5 @@
 package assignment1;
 
-import assignment1.Assignment1;
-
 /**
  *
  * @author N.C.M. van Nistelrooij
