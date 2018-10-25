@@ -52,12 +52,6 @@ public class FordFulkerson {
         return flowGraph;
     }
 
-    public static <T extends Number> Graph<T> runStatic(Graph<T> graph, int source,
-            int sink) {
-        FordFulkerson fordFulkerson = new FordFulkerson(1, 0);
-        return fordFulkerson.run(graph, source, sink);
-    }
-
     public <T extends Number> T getFlowValue(Graph<T> flowGraph, int source) {
         checkNullGraph(flowGraph);
         checkInvalidNrOfEdgeVariables(flowGraph, flowGraphNrOfEdgeVariables);
@@ -77,11 +71,6 @@ public class FordFulkerson {
         }
 
         throw new IllegalArgumentException("The degree of the source vertex is 0.");
-    }
-
-    public static <T extends Number> T getFlowValueStatic(Graph<T> flowGraph, int source) {
-        FordFulkerson fordFulkerson = new FordFulkerson(1, 0);
-        return fordFulkerson.getFlowValue(flowGraph, source);
     }
 
     private <T extends Number> Graph makeFlowGraph(Graph<T> graph) {
