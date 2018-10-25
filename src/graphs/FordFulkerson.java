@@ -64,7 +64,7 @@ public class FordFulkerson {
             return getNumberWithReferenceType((T) new Double(flowValue), reference);
         }
 
-        return (T) new Integer(1);
+        throw new IllegalArgumentException("The degree of the source vertex is 0.");
     }
 
     private static <T extends Number> Graph makeFlowGraph(Graph<T> graph) {
