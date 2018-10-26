@@ -24,7 +24,7 @@ public class Graph {
     public Graph(Graph graph) {
         this(graph.getNrOfVertices());
 
-        for(List<int[]> adjacencyList : adjacencyLists) {
+        for(List<int[]> adjacencyList : graph.adjacencyLists) {
             for(int[] edgeVariables : adjacencyList) {
                 int vertexU = edgeVariables[0];
                 int vertexV = edgeVariables[1];
