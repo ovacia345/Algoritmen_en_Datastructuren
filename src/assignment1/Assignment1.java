@@ -19,15 +19,9 @@ public class Assignment1 {
         
         Graph graph = createGraph(nrOfBoxes, boxes);
 
-        long time = System.currentTimeMillis();
-
         Graph flowGraph = FordFulkerson.run(graph,
                 0, graph.getNrOfVertices() - 1);
         int flowValue = FordFulkerson.getFlowValue(flowGraph, 0);
-
-        time = System.currentTimeMillis() - time;
-
-        IOHandler.print(Long.toString(time));
         
         IOHandler.print(Integer.toString(nrOfBoxes - flowValue));
     }
