@@ -1,6 +1,5 @@
 package assignment1;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,8 +22,8 @@ public class DFS {
             int[][] parentEdges, int sink) {
         discovered[vertexU] = true;
 
-        List<int[]> adjacencyList = graph.getAdjacencyList(vertexU);
-        for(int[] edgeVariables : adjacencyList) {
+        List<int[]> adjacencyListVertexU = graph.getAdjacencyList(vertexU);
+        for(int[] edgeVariables : adjacencyListVertexU) {
             int vertexV = edgeVariables[1];
             if(discovered[vertexV] == false) {
                 parentEdges[vertexV] = edgeVariables;
@@ -35,20 +34,5 @@ public class DFS {
                 }
             }
         }
-    }
-
-    public static List<int[]> getPath(int[][] parentEdges, int lastVertex) {
-        if(parentEdges[lastVertex][1] == 0) {
-            List<int[]> path = new LinkedList<>();
-            return path;
-        }
-
-        int[] parentEdge = parentEdges[lastVertex];
-
-        int parent = parentEdge[0];
-        List<int[]> path = getPath(parentEdges, parent);
-
-        path.add(parentEdge);
-        return path;
     }
 }

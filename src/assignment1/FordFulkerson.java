@@ -1,5 +1,6 @@
 package assignment1;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ public class FordFulkerson {
         int[][] parentEdges = DFS.run(residualGraph, source, sink);
         while(parentEdges[sink][1] == sink) {
 
-            List<int[]> path = DFS.getPath(parentEdges, sink);
+            List<int[]> path = getPath(parentEdges, sink);
             for(int[] edgeVariables : path) {
                 int vertexU = edgeVariables[0];
                 int vertexV = edgeVariables[1];
@@ -37,6 +38,21 @@ public class FordFulkerson {
         }
 
         return flowValue;
+    }
+
+    private static List<int[]> getPath(int[][] parentEdges, int lastVertex) {
+        if(parentEdges[lastVertex][1] == 0) {
+            List<int[]> path = new LinkedList<>();
+            return path;
+        }
+
+        int[] parentEdge = parentEdges[lastVertex];
+
+        int parent = parentEdge[0];
+        List<int[]> path = getPath(parentEdges, parent);
+
+        path.add(parentEdge);
+        return path;
     }
 
     private static void augmentFlow(Graph flowGraph, Graph residualGraph,
