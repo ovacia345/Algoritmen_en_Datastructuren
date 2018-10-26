@@ -41,8 +41,9 @@ public class FordFulkerson {
 
     private static void augmentFlow(Graph flowGraph, Graph residualGraph,
             int vertexU, int vertexV) {
-        if(flowGraph.hasEdge(vertexU, vertexV)) {
-            flowGraph.setFlow(vertexU, vertexV, 1);
+        int[] edgeVariables = flowGraph.getEdgeVariables(vertexU, vertexV);
+        if(edgeVariables != null) {
+            edgeVariables[2] = 1;
         } else {
             flowGraph.setFlow(vertexV, vertexU, 0);
         }

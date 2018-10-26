@@ -24,11 +24,8 @@ public class Graph {
     public Graph(Graph graph) {
         this(graph.getNrOfVertices());
 
-        for(int vertex = 0; vertex < nrOfVertices; vertex++) {
-
-            List<int[]> adjacencyList = graph.getAdjacencyList(vertex);
+        for(List<int[]> adjacencyList : adjacencyLists) {
             for(int[] edgeVariables : adjacencyList) {
-
                 int vertexU = edgeVariables[0];
                 int vertexV = edgeVariables[1];
                 addEdge(vertexU, vertexV);
@@ -42,6 +39,18 @@ public class Graph {
 
     public List<int[]> getAdjacencyList(int vertex) {
         return adjacencyLists[vertex];
+    }
+
+    public int[] getEdgeVariables(int source, int destination) {
+        List<int[]> adjacencyList = getAdjacencyList(source);
+
+        for(int[] edgeVariables : adjacencyList) {
+            if(edgeVariables[1] == destination) {
+                return edgeVariables;
+            }
+        }
+
+        return null;
     }
 
     public void setFlow(int source, int destination, int flow) {
