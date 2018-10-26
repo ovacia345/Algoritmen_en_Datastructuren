@@ -18,9 +18,7 @@ public class FordFulkerson {
 
             List<int[]> path = getPath(parentEdges, sink);
             for(int[] edgeVariables : path) {
-                int vertexU = edgeVariables[0];
-                int vertexV = edgeVariables[1];
-                augmentFlow(flowGraph, residualGraph, vertexU, vertexV);
+                augmentFlow(flowGraph, residualGraph, edgeVariables);
             }
 
             parentEdges = DFS.run(residualGraph, source, sink);
@@ -56,15 +54,18 @@ public class FordFulkerson {
     }
 
     private static void augmentFlow(Graph flowGraph, Graph residualGraph,
-            int vertexU, int vertexV) {
-        int[] edgeVariables = flowGraph.getEdgeVariables(vertexU, vertexV);
-        if(edgeVariables != null) {
-            edgeVariables[2] = 1;
+            int[] residualGraphEdgeVariables) {
+        int vertexU = residualGraphEdgeVariables[0];
+        int vertexV = residualGraphEdgeVariables[1];
+
+        int[] flowGraphEdgeVariables = flowGraph.getEdgeVariables(vertexU, vertexV);
+        if(flowGraphEdgeVariables != null) {
+            flowGraphEdgeVariables[2] = 1;
         } else {
             flowGraph.setFlow(vertexV, vertexU, 0);
         }
 
         residualGraph.addEdge(vertexV, vertexU);
-        residualGraph.removeEdge(vertexU, vertexV);
+        residualGraph.removeEdge(vertexU, residualGraphEdgeVariables);
     }
 }

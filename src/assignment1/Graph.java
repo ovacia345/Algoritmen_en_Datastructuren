@@ -63,15 +63,9 @@ public class Graph {
         }
     }
 
-    public void removeEdge(int source, int destination) {
+    public void removeEdge(int source, int[] edgeVariables) {
         List<int[]> adjacencyList = getAdjacencyList(source);
-
-        for(int[] edgeVariables : adjacencyList) {
-            if(edgeVariables[1] == destination) {
-                adjacencyList.remove(edgeVariables);
-                return;
-            }
-        }
+        adjacencyList.remove(edgeVariables);
     }
 
     public boolean hasEdge(int source, int destination) {
