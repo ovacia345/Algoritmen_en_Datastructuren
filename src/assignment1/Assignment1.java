@@ -31,14 +31,12 @@ public class Assignment1 {
         Graph graph = new Graph(nrOfVertices); // source = souce, sink = sink;
         int source = 0;
         int sink = nrOfVertices-1;
-        //source connections  
+        //source connections  + sink connections
         for(int box  = 1 ; box <= nrOfBoxes; box++) {
             graph.addEdge(source, box);
+            graph.addEdge(box + nrOfBoxes,sink);
         }
-        //sink connections
-        for(int box = sink - 1; box > nrOfBoxes ; box--){
-            graph.addEdge(box, sink);
-        }
+
         for(int i = 0; i < nrOfBoxes; i++){
             for(int j=0; j < nrOfBoxes; j++){
                 if(i != j && boxes[i].fitsIn(boxes[j])) {
