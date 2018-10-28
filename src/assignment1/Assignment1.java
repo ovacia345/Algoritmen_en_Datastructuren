@@ -24,21 +24,20 @@ public class Assignment1 {
         System.out.println("time elapsed up untill graph creation " + (graphCreationTime - startTime ));
        
         System.out.println(graph);
-//        startTime = System.nanoTime();
-//        Graph flowGraph = FordFulkerson.run(graph,
-//                0, graph.getNrOfVertices() - 1);
-//        long flowGraphTime = System.nanoTime();
-//        System.out.println("time elapsed untill flowgraph created " + (flowGraphTime- startTime) );
-//        
-//        startTime = System.nanoTime();
-//        int flowValue = FordFulkerson.getFlowValue(flowGraph, 0);
-//        long flowValueReturnTime = System.nanoTime();
-//        System.out.println("time for returning flowvalue " + (flowValueReturnTime - startTime) ); 
-//        
-//        startTime = System.nanoTime();
-//        IOHandler.print(Integer.toString(nrOfBoxes - flowValue));
-//        long printTime = System.nanoTime();
-//        System.out.println(" print time " + (printTime - startTime));
+        startTime = System.nanoTime();
+        Graph flowGraph = FordFulkerson.run(graph, graph.getSource(), graph.getSink());
+        long flowGraphTime = System.nanoTime();
+        System.out.println("time elapsed untill flowgraph created " + (flowGraphTime- startTime) );
+        
+        startTime = System.nanoTime();
+        int flowValue = FordFulkerson.getFlowValue(flowGraph, 0);
+        long flowValueReturnTime = System.nanoTime();
+        System.out.println("time for returning flowvalue " + (flowValueReturnTime - startTime) ); 
+        
+        startTime = System.nanoTime();
+        IOHandler.print(Integer.toString(nrOfBoxes - flowValue));
+        long printTime = System.nanoTime();
+        System.out.println(" print time " + (printTime - startTime));
     }
     
     private static Graph createGraph(int nrOfBoxes, Box[] boxes) {

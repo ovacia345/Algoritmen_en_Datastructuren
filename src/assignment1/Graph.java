@@ -1,7 +1,6 @@
 package assignment1;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,10 +16,8 @@ public class Graph {
     public Graph(int nrOfVertices) {
         this.nrOfVertices = nrOfVertices;
         adjacencyLists = new ArrayList<Vertex>();
-//        adjacencyLists = new List[nrOfVertices];
         for(int vertex = 0; vertex < nrOfVertices; vertex++) {
             adjacencyLists.add(new Vertex(vertex));
-//            adjacencyLists[vertex] = new Vertex();
         }
         
         System.out.println("graph met " + nrOfVertices + " vertices");
@@ -36,21 +33,8 @@ public class Graph {
     public Graph(Graph graph) {
         this(graph.getNrOfVertices(), graph.getAdjLists());
 
-//        for(List<int[]> adjacencyList : graph.adjacencyLists) {
-//            for(int[] edgeVariables : adjacencyList) { //should be vertices instead of edgevars?
-//                System.out.println("edgeVar0  " +edgeVariables[0] );
-//                System.out.println("edgeVars legnte " +edgeVariables.length);
-//
-//                int vertexU = edgeVariables[0];
-//                int vertexV = edgeVariables[1];
-//                addEdge(vertexU, vertexV);
-//            }
-//        }
     }
-    
-//    public void addEdge(int source, int destination) {
-//        adjacencyLists[source].add(new int[]{source, destination, 0, 1});
-//    }
+
     public Vertex getSource() {
         return this.getVertex(0);
     }
@@ -71,9 +55,7 @@ public class Graph {
         return adjacencyLists;
     }
     
-//    public List<int[]> getAdjacencyList(int vertex) {
-//        return adjacencyLists[vertex];
-//    }
+
 
     public int getEdgeFlow(Edge e) {
         return e.getFlow();
@@ -83,29 +65,7 @@ public class Graph {
     public int getEdgeCap(Edge e) {
         return e.getCapacity();
     }
-    //loop everytime, this could be done more efficiently
-//    public int[] getEdgeVariables(int source, int destination) {
-//        List<int[]> adjacencyList = getAdjacencyList(source);
-//
-//        for(int[] edgeVariables : adjacencyList) {
-//            if(edgeVariables[1] == destination) {
-//                return edgeVariables;
-//            }
-//        }
-//
-//        return null;
-//    }
-        
-    //loop everytime, this could be done more efficiently
-//    public void setFlow(int source, int destination, int flow) {
-//        List<int[]> adjacencyList = getAdjacencyList(source);
-//
-//        for(int[] edgeVariables : adjacencyList) {
-//            if(edgeVariables[1] == destination) {
-//                edgeVariables[2] = flow;
-//            }
-//        }
-//    }
+
     
     public void setFlow(Edge e, int flow ){
         e.setFlow(flow);
@@ -114,12 +74,7 @@ public class Graph {
     public void removeEdge(Edge e){
         e.getFrom().removeNeighbour(e.getFrom(), e.getTo());
     }
-    
-//    public void removeEdge(int source, int[] edgeVariables) {
-//        List<int[]> adjacencyList = getAdjacencyList(source);
-//        adjacencyList.remove(edgeVariables);
-//    }
-    
+
     
     public Edge getEdge(Vertex from, Vertex to){
         LinkedList<Edge> nb =from.getNeighbours();
@@ -140,18 +95,6 @@ public class Graph {
         }
         return false;
     }
-              
-//    public boolean hasEdge(int source, int destination) {
-//        List<int[]> adjacencyList = getAdjacencyList(source);
-//
-//        for(int[] edgeVariables : adjacencyList) {
-//            if(edgeVariables[1] == destination) {
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
 
     public int getNrOfVertices() {
         return nrOfVertices;

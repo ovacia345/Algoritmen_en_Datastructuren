@@ -9,85 +9,75 @@ import java.util.List;
  * @author C Amghane
  */
 public class FordFulkerson {
-    public static Graph run(Graph graph, int source, int sink) {
+    
+    
+    public static Graph run(Graph graph, Vertex source, Vertex sink) {
         Graph flowGraph = graph;
-        Graph residualGraph = new Graph(graph); // kost tijd
+        //Graph residualGraph = new Graph(graph); // kost tijd
 
         //int[][] parentEdges = DFS.run(residualGraph, source, sink);
-        Edge[] pEdges = DFS.run(residualGraph,source,sink);
+        List<Edge> pEdges = DFS.run(flowGraph,source.getNumber(),sink.getNumber());
         
-        while(parentEdges[sink][1] == sink) {
-            
-            List<int[]> path = getPath(parentEdges, sink);
-            for(int[] edgeVariables : path) {
-                augmentFlow(flowGraph, residualGraph, edgeVariables);
-            }
-
-            parentEdges = DFS.run(residualGraph, source, sink);
-        }
+        List<Edge> pp = getPath(pEdges, pEdges.get(1).getFrom());
         
-        while(pEdges[0].getTo().getNumber() == sink ){
-            List<int[]> path = getPath(pEdges, sink);
+        for(Edge e: pEdges){
+            //edge's flow should only be updated when residual path is possible...
             
-            
+            //augmentFlow(flowGraph,e);
+            e.setFlow(1);
         }
 
         return flowGraph;
     }
 
     public static int getFlowValue(Graph flowGraph, int source) {
-        //List<int[]> adjacencyList = flowGraph.getAdjacencyList(source);
-        List<Edge> edges = flowGraph.getAdjLists().get(source).getNeighbours();
+        List<Edge> edges = flowGraph.getSink().getNeighbours();//flowGraph.getAdjLists().get(source).getNeighbours();
 
         int flowValue = 0;
-//        for(int[] edgeVariables : adjacencyList) {
-//            flowValue += edgeVariables[2];
-//        }
+
         for(Edge e:edges){
             flowValue+= e.getFlow();
         }
-
+        System.out.println("flowvalue + " + flowValue);
         return flowValue;
     }
 
     
     
-    private static List<int[]> getPath(int[][] parentEdges, int lastVertex) {
-        if(parentEdges[lastVertex][1] == 0) {
-            List<int[]> path = new LinkedList<>();
+    // this could be an arrray of edges
+    private static List<Edge> getPath(List<Edge> parentEdges, Vertex v) {
+
+        if(v.getNumber() == 0){
+            List<Edge> path = new LinkedList<>();
             return path;
         }
+        
+ 
+        Edge pE = parentEdges.get(v.getNumber()-1);
 
-        int[] parentEdge = parentEdges[lastVertex];
+        Vertex p = pE.getFrom();
 
-        int parent = parentEdge[0];
-        List<int[]> path = getPath(parentEdges, parent);
+        parentEdges.remove(pE);
+        List<Edge> path = getPath(parentEdges, p);
 
-        path.add(parentEdge);
+        path.add(pE);
         return path;
     }
 
-    private static void augmentFlow(Graph flowGraph, Graph residualGraph,
-            Edge e) {
-        
-       // int vertexU = residualGraphEdgeVariables[0];
-        //int vertexV = residualGraphEdgeVariables[1];
-        
+    private static void augmentFlow(Graph flowGraph,Graph residualGraph , Edge e) {
+
         Vertex vU = e.getFrom();
         Vertex vV = e.getTo();
-
-        //int[] flowGraphEdgeVariables = flowGraph.getEdgeVariables(vertexU, vertexV);
         
         Edge eInfo = flowGraph.getEdge(vU, vV);
         if(eInfo != null) {
+            System.out.println("increainsg flow ");
             eInfo.setFlow(1);
         } else {
-            //flowGraph.addEdge(vertexV, vertexU, 0);
+            System.out.println("not increasing flow");
             flowGraph.addEdge(vV,vU);
         }
 
-        //residualGraph.addEdge(vertexV, vertexU);
-        //residualGraph.removeEdge(vertexU, residualGraphEdgeVariables);
         residualGraph.removeEdge(e);
 
     }

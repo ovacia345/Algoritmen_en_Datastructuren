@@ -1,5 +1,7 @@
 package assignment1;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -8,48 +10,55 @@ import java.util.List;
  * @author C Amghane
  */
 public class DFS {
-    public static Edge[] run(Graph graph, int source, int sink) {
+    public static List<Edge> run(Graph graph, int source, int sink) {
+        
         int nrOfVertices = graph.getNrOfVertices();
-        boolean[] discovered = new boolean[nrOfVertices];
-        int[][] parentEdges = new int[nrOfVertices][4];
         
-        Edge[] npedges = new Edge[nrOfVertices];
+        List<Vertex> discoveredVertices = new ArrayList<>();
         
-        DFSVisit(graph, source, discovered, npedges, sink);
+        int[] disc = new int[nrOfVertices];
+        
+        List<Edge> npedges = new LinkedList<>();
+
+        for(Vertex u : graph.getAdjLists()){           
+            if(!discoveredVertices.contains(u)){
+                DFSVisit(graph, u, discoveredVertices,npedges,graph.getSink());
+            }
+          
+        }
 
         return npedges;
     }
 
-    private static void DFSVisit(Graph graph, int vertexU, boolean[] discovered,
-                                Edge[] npedges, int sink) {
-        discovered[vertexU] = true;
+    private static void DFSVisit(Graph graph, Vertex vertexU, List<Vertex> discoveredVertices,
+                                List<Edge> npedges, Vertex sink) {
 
-//        List<int[]> adjacencyListVertexU = graph.getAdjacencyList(vertexU);
-//        for(int[] edgeVariables : adjacencyListVertexU) {
-//            int vertexV = edgeVariables[1];
-//            if(discovered[vertexV] == false) {
-//                parentEdges[vertexV] = edgeVariables;
-//                DFSVisit(graph, vertexV, discovered, parentEdges, sink);
-//
-//                if(discovered[sink] == true) {
-//                    return;
-//                }
-//            }
-//        }
         
-        List<Edge> edges = graph.getAdjLists().get(vertexU).getNeighbours();
+        List<Edge> edges = vertexU.getNeighbours();
         for(Edge e: edges){
-            int vertexV = e.getTo().getNumber();
-            if(discovered[vertexV] == false ){
+            Vertex vertexV = e.getTo();
+            if(!discoveredVertices.contains(vertexV)){
                 //parentEdges[vertexV] = e;
-                npedges[0] = e;
-                DFSVisit(graph, vertexV, discovered,npedges, sink);
-                if(discovered[sink] == true) {
-                    return;
-                }
+                npedges.add(e);
+
+                DFSVisit(graph, vertexV, discoveredVertices, npedges, sink);
+//                if(discoveredVertices.contains(sink)) return;
             } 
         }
         
+       discoveredVertices.add(vertexU); 
+       
+    }
+    
+    private static void singlerunDFS(Vertex v){
+        
+        //g.getAdjLists().get(1).getNeighbours()
+        
+        List<Edge> nbs = v.getNeighbours();
+        
+        for(Edge e: nbs){
+            
+        }
         
         
     }

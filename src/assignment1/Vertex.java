@@ -5,7 +5,10 @@
  */
 package assignment1;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -67,5 +70,23 @@ public class Vertex {
     public String toString() {
         return this.number + "";
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Vertex)) return false;
+        if(o == this) return true;
+        Vertex otherVertex = (Vertex) o;
+        return number == otherVertex.getNumber();
+        
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 83 * hash + this.number;
+        return hash;
+    }
+
+
     
 }
