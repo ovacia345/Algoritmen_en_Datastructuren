@@ -1,17 +1,15 @@
 package assignment1;
 
-import java.util.List;
-
 /**
  *
  * @author N.C.M. van Nistelrooij
  * @author C Amghane
  */
 public class DFS {
-    public static int[][] run(Graph graph, int source, int sink) {
+    public static Edge[] run(Graph graph, int source, int sink) {
         int nrOfVertices = graph.getNrOfVertices();
         boolean[] discovered = new boolean[nrOfVertices];
-        int[][] parentEdges = new int[nrOfVertices][4];
+        Edge[] parentEdges = new Edge[nrOfVertices];
 
         DFSVisit(graph, source, discovered, parentEdges, sink);
 
@@ -19,18 +17,20 @@ public class DFS {
     }
 
     private static void DFSVisit(Graph graph, int vertexU, boolean[] discovered,
-            int[][] parentEdges, int sink) {
+            Edge[] parentEdges, int sink) {
         discovered[vertexU] = true;
 
-        List<int[]> adjacencyListVertexU = graph.getAdjacencyList(vertexU);
-        for(int[] edgeVariables : adjacencyListVertexU) {
-            int vertexV = edgeVariables[1];
-            if(discovered[vertexV] == false) {
-                parentEdges[vertexV] = edgeVariables;
-                DFSVisit(graph, vertexV, discovered, parentEdges, sink);
+        Edge[] adjacencyListVertexU = graph.getAdjacencyList(vertexU);
+        for(Edge edge : adjacencyListVertexU) {
+            if(edge != null) {
+                int vertexV = edge.getTo();
+                if(discovered[vertexV] == false) {
+                    parentEdges[vertexV] = edge;
+                    DFSVisit(graph, vertexV, discovered, parentEdges, sink);
 
-                if(discovered[sink] == true) {
-                    return;
+                    if(discovered[sink] == true) {
+                        return;
+                    }
                 }
             }
         }

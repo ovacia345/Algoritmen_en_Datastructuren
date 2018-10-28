@@ -13,12 +13,12 @@ public class FordFulkerson {
         Graph flowGraph = graph;
         Graph residualGraph = new Graph(graph);
 
-        int[][] parentEdges = DFS.run(residualGraph, source, sink);
-        while(parentEdges[sink][1] == sink) {
+        Edge[] parentEdges = DFS.run(residualGraph, source, sink);
+        while(parentEdges[sink] != null) {
 
-            List<int[]> path = getPath(parentEdges, sink);
-            for(int[] edgeVariables : path) {
-                augmentFlow(flowGraph, residualGraph, edgeVariables);
+            List<Edge> path = getPath(parentEdges, sink);
+            for(Edge edge : path) {
+                augmentFlow(flowGraph, residualGraph, edge);
             }
 
             parentEdges = DFS.run(residualGraph, source, sink);
@@ -28,44 +28,45 @@ public class FordFulkerson {
     }
 
     public static int getFlowValue(Graph flowGraph, int source) {
-        List<int[]> adjacencyList = flowGraph.getAdjacencyList(source);
+        Edge[] adjacencyList = flowGraph.getAdjacencyList(source);
 
         int flowValue = 0;
-        for(int[] edgeVariables : adjacencyList) {
-            flowValue += edgeVariables[2];
+        for(Edge edge : adjacencyList) {
+            if(edge != null) {
+                flowValue += edge.getFlow();
+            }
         }
 
         return flowValue;
     }
 
-    private static List<int[]> getPath(int[][] parentEdges, int lastVertex) {
-        if(parentEdges[lastVertex][1] == 0) {
-            List<int[]> path = new LinkedList<>();
+    private static List<Edge> getPath(Edge[] parentEdges, int lastVertex) {
+        if(parentEdges[lastVertex] == null) {
+            List<Edge> path = new LinkedList<>();
             return path;
         }
 
-        int[] parentEdge = parentEdges[lastVertex];
+        Edge parentEdge = parentEdges[lastVertex];
 
-        int parent = parentEdge[0];
-        List<int[]> path = getPath(parentEdges, parent);
+        int parent = parentEdge.getFrom();
+        List<Edge> path = getPath(parentEdges, parent);
 
         path.add(parentEdge);
         return path;
     }
 
     private static void augmentFlow(Graph flowGraph, Graph residualGraph,
-            int[] residualGraphEdgeVariables) {
-        int vertexU = residualGraphEdgeVariables[0];
-        int vertexV = residualGraphEdgeVariables[1];
+            Edge edge) {
+        int from = edge.getFrom();
+        int to = edge.getTo();
 
-        int[] flowGraphEdgeVariables = flowGraph.getEdgeVariables(vertexU, vertexV);
-        if(flowGraphEdgeVariables != null) {
-            flowGraphEdgeVariables[2] = 1;
+        if(flowGraph.hasEdge(from, to)) {
+            flowGraph.setFlow(from, to, 1);
         } else {
-            flowGraph.setFlow(vertexV, vertexU, 0);
+            flowGraph.setFlow(to, from, 0);
         }
 
-        residualGraph.addEdge(vertexV, vertexU);
-        residualGraph.removeEdge(vertexU, residualGraphEdgeVariables);
+        residualGraph.addEdge(to, from);
+        residualGraph.removeEdge(from, to);
     }
 }

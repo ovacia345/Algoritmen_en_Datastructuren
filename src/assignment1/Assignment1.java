@@ -19,9 +19,7 @@ public class Assignment1 {
         
         Graph graph = createGraph(nrOfBoxes, boxes);
 
-        Graph flowGraph = FordFulkerson.run(graph,
-                0, graph.getNrOfVertices() - 1);
-        int flowValue = FordFulkerson.getFlowValue(flowGraph, 0);
+        int flowValue = HopcroftKarp.flowValue(graph, nrOfBoxes);
         
         IOHandler.print(Integer.toString(nrOfBoxes - flowValue));
     }

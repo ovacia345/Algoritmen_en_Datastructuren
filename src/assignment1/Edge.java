@@ -1,26 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package assignment1;
 
 /**
  *
+ * @author N.C.M van Nistelrooij
  * @author chihab
  */
 public class Edge {
     
-    private Vertex from ;
-    private Vertex to;
+    private final int from ;
+    private final int to;
+
     private int flow;
-    private int capacity;
+    private final int capacity;
     
-    public Edge(Vertex from, Vertex to){
+    public Edge(int from, int to){
         this.from = from;
         this.to = to;
+
         this.flow = 0;
-        this.capacity = 1;        
+        this.capacity = 1;     
     }
     
     
@@ -28,23 +26,24 @@ public class Edge {
         this.flow = flow;
     }
     
-    public void setCapacity(int cap) {
-        this.capacity = cap;
-    }
-    
     public int getFlow() {
-        return this.flow;
+        return flow;
     }
     
     public int getCapacity() {
-        return this.capacity;
+        return capacity;
     }
     
-    public Vertex getFrom(){
-        return this.from;
+    public int getFrom(){
+        return from;
     }
     
-    public Vertex getTo() {
-        return this.to;
+    public int getTo() {
+        return to;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d - %d:\t%d\t%d\n", from, to, flow, capacity);
     }
 }

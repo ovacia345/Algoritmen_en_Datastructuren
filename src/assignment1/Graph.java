@@ -1,10 +1,5 @@
 package assignment1;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  *
  * @author N.C.M. van Nistelrooij
@@ -12,161 +7,124 @@ import java.util.List;
  */
 public class Graph {
     private final int nrOfVertices;
-    private final List<Vertex> adjacencyLists;
+    private final Edge[][] adjacencyMatrix;
 
     public Graph(int nrOfVertices) {
         this.nrOfVertices = nrOfVertices;
-        adjacencyLists = new ArrayList<Vertex>();
-//        adjacencyLists = new List[nrOfVertices];
-        for(int vertex = 0; vertex < nrOfVertices; vertex++) {
-            adjacencyLists.add(new Vertex(vertex));
-//            adjacencyLists[vertex] = new Vertex();
-        }
-        
-        System.out.println("graph met " + nrOfVertices + " vertices");
-    }
-    
-    
-    public Graph(int nrOfVertices, List<Vertex> adjList) {
-        this.nrOfVertices = nrOfVertices;
-        this.adjacencyLists = adjList;
-    }
-    
+        adjacencyMatrix = new Edge[nrOfVertices][nrOfVertices];
+    }    
     
     public Graph(Graph graph) {
-        this(graph.getNrOfVertices(), graph.getAdjLists());
+        this(graph.getNrOfVertices());
 
-//        for(List<int[]> adjacencyList : graph.adjacencyLists) {
-//            for(int[] edgeVariables : adjacencyList) { //should be vertices instead of edgevars?
-//                System.out.println("edgeVar0  " +edgeVariables[0] );
-//                System.out.println("edgeVars legnte " +edgeVariables.length);
-//
-//                int vertexU = edgeVariables[0];
-//                int vertexV = edgeVariables[1];
-//                addEdge(vertexU, vertexV);
-//            }
-//        }
-    }
-    
-//    public void addEdge(int source, int destination) {
-//        adjacencyLists[source].add(new int[]{source, destination, 0, 1});
-//    }
-    public Vertex getSource() {
-        return this.getVertex(0);
-    }
-    public Vertex getSink() {
-        return this.getVertex(this.nrOfVertices-1);
-    }
-    
-    public Vertex getVertex(int number) {
-        return this.adjacencyLists.get(number);
-        
-    }
-    
-    public void addEdge(Vertex from, Vertex to) {
-        from.addNeighbour(new Edge(from, to));
-        //adjacencyLists.
-    }
-    public List<Vertex> getAdjLists() {
-        return adjacencyLists;
-    }
-    
-//    public List<int[]> getAdjacencyList(int vertex) {
-//        return adjacencyLists[vertex];
-//    }
-
-    public int getEdgeFlow(Edge e) {
-        return e.getFlow();
-        
-    }
-    
-    public int getEdgeCap(Edge e) {
-        return e.getCapacity();
-    }
-    //loop everytime, this could be done more efficiently
-//    public int[] getEdgeVariables(int source, int destination) {
-//        List<int[]> adjacencyList = getAdjacencyList(source);
-//
-//        for(int[] edgeVariables : adjacencyList) {
-//            if(edgeVariables[1] == destination) {
-//                return edgeVariables;
-//            }
-//        }
-//
-//        return null;
-//    }
-        
-    //loop everytime, this could be done more efficiently
-//    public void setFlow(int source, int destination, int flow) {
-//        List<int[]> adjacencyList = getAdjacencyList(source);
-//
-//        for(int[] edgeVariables : adjacencyList) {
-//            if(edgeVariables[1] == destination) {
-//                edgeVariables[2] = flow;
-//            }
-//        }
-//    }
-    
-    public void setFlow(Edge e, int flow ){
-        e.setFlow(flow);
-    }
-    
-    public void removeEdge(Edge e){
-        e.getFrom().removeNeighbour(e.getFrom(), e.getTo());
-    }
-    
-//    public void removeEdge(int source, int[] edgeVariables) {
-//        List<int[]> adjacencyList = getAdjacencyList(source);
-//        adjacencyList.remove(edgeVariables);
-//    }
-    
-    
-    public Edge getEdge(Vertex from, Vertex to){
-        LinkedList<Edge> nb =from.getNeighbours();
-        for(Edge e: nb){
-            if(e.getTo().equals(to)){
-                return e;
+        for(int from = 0; from < nrOfVertices; from++) {
+            for(int to = 0; to < nrOfVertices; to++) {
+                if(graph.adjacencyMatrix[from][to] != null) {
+                    addEdge(from, to);
+                }
             }
         }
-        return null;
     }
-    
-    public boolean hasEdge(Vertex from, Vertex to){
-        LinkedList<Edge> nb =from.getNeighbours();
-        for(Edge e: nb){
-            if(e.getTo().equals(to)){
-                return true;
-            }
-        }
-        return false;
-    }
-              
-//    public boolean hasEdge(int source, int destination) {
-//        List<int[]> adjacencyList = getAdjacencyList(source);
-//
-//        for(int[] edgeVariables : adjacencyList) {
-//            if(edgeVariables[1] == destination) {
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
 
+    /**
+     * Add an edge from {@code from} to {@code to} with flow 0 and capacity 1 or
+     * residual capacity 1.
+     * @param from the source vertex
+     * @param to the destination vertex
+     */
+    public void addEdge(int from, int to) {
+        adjacencyMatrix[from][to] = new Edge(from, to);
+    }
+
+    /**
+     * Get the source of this graph in the context of a Ford-Fulkerson method.
+     * @return source of the graph
+     */
+    public int getSource() {
+        return 0;
+    }
+
+    /**
+     * Get the sink of this graph in the context of a Ford-Fulkerson mathod.
+     * @return sink of the graph
+     */
+    public int getSink() {
+        return nrOfVertices - 1;
+    }
+
+    /**
+     * Get the array of edges from {@code from} to all vertices.
+     * @param from the source vertex
+     * @return an array of all the edges from from to all vertices. The array
+     * can have null edges
+     */
+    public Edge[] getAdjacencyList(int from) {
+        return adjacencyMatrix[from];
+    }
+
+    /**
+     * Set flow of edge from {@code from} to {@code to} to {@code flow}.
+     * @param from the source vertex
+     * @param to the destination vertex
+     * @param flow the new value for the flow of the edge
+     */
+    public void setFlow(int from, int to, int flow) {
+        adjacencyMatrix[from][to].setFlow(flow);
+    }
+
+    /**
+     * Get the edge from {@code from} to {@code to}.
+     * @param from the source vertex
+     * @param to the destination vertex
+     * @return the edge from {@code from} to {@code to}
+     */
+    public Edge getEdge(int from, int to) {
+        return adjacencyMatrix[from][to];        
+    }
+
+    /**
+     * Remove the edge from {@code from} to {@code to}.
+     * @param from the source vertex
+     * @param to the destination vertex
+     */
+    public void removeEdge(int from, int to){
+        adjacencyMatrix[from][to] = null;
+    }
+
+    /**
+     * Returns whether or not the edge from {@code from} to {@code to} exists
+     * in this graph.
+     * @param from the source vertex
+     * @param to the destination vertex
+     * @return whether or not the edge exists in the graph
+     */
+    public boolean hasEdge(int from, int to){
+        return adjacencyMatrix[from][to] != null;
+    }
+
+    /**
+     * Get the number of vertices of this graph.
+     * @return number of vertices of the graph
+     */
     public int getNrOfVertices() {
         return nrOfVertices;
     }
 
+    /**
+     * Returns a {@code String} representation of this graph according to the
+     * {@code toString()} of the edges.
+     * @return {@code String} representation of the graph
+     */
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for(int vertex = 0; vertex < nrOfVertices; vertex++) {
-            LinkedList<Edge> edges = adjacencyLists.get(vertex).getNeighbours();
-            for(Edge e : edges) {
-                System.out.println(e.getFrom() + " : " + e.getTo());
-                stringBuilder.append(String.format("%d - %s:\t%d %d\t", vertex,
-                         e.getTo(), e.getFlow(), e.getCapacity()));
+        for(int from = 0; from < nrOfVertices; from++) {
+            for(int to = 0; to < nrOfVertices; to++) {
+                Edge edge = adjacencyMatrix[from][to];
+                if(edge != null) {
+                    stringBuilder.append(edge);
+                }
             }
         }
 
