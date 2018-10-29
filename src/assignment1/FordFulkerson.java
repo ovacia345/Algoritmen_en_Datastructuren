@@ -1,6 +1,6 @@
 package assignment1;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,72 +13,54 @@ public class FordFulkerson {
     
     public static Graph run(Graph graph, Vertex source, Vertex sink) {
         Graph flowGraph = graph;
-        //Graph residualGraph = new Graph(graph); // kost tijd
 
-        //int[][] parentEdges = DFS.run(residualGraph, source, sink);
-        List<Edge> pEdges = DFS.run(flowGraph,source.getNumber(),sink.getNumber());
+        List<Edge> visitedEdges = new ArrayList<>();
+        List<Vertex> visitedVerts = new ArrayList<>();        
+        augmentFlow(graph,visitedEdges, visitedVerts);
         
-        List<Edge> pp = getPath(pEdges, pEdges.get(1).getFrom());
-        
-        for(Edge e: pEdges){
-            //edge's flow should only be updated when residual path is possible...
-            
-            //augmentFlow(flowGraph,e);
-            e.setFlow(1);
-        }
 
         return flowGraph;
     }
 
-    public static int getFlowValue(Graph flowGraph, int source) {
-        List<Edge> edges = flowGraph.getSink().getNeighbours();//flowGraph.getAdjLists().get(source).getNeighbours();
-
+    public static int getFlowValue(Graph flowGraph) {
         int flowValue = 0;
-
-        for(Edge e:edges){
-            flowValue+= e.getFlow();
+        Vertex sink = flowGraph.getSink();
+        int nrOfBoxes = (flowGraph.getNrOfVertices() -2 ) /2 ;
+        for(int i = flowGraph.getSink().getNumber() -1 ; i>nrOfBoxes; i--){
+            Vertex v = flowGraph.getVertex(i);
+           flowValue += flowGraph.getEdge(v, sink).getFlow();
         }
-        System.out.println("flowvalue + " + flowValue);
+        
+        
         return flowValue;
     }
 
-    
-    
-    // this could be an arrray of edges
-    private static List<Edge> getPath(List<Edge> parentEdges, Vertex v) {
 
-        if(v.getNumber() == 0){
-            List<Edge> path = new LinkedList<>();
-            return path;
+    
+    /**
+     * This function augments the flow of edges. It starts from the vertices connected with source 
+     * and moves towards sink.
+     * @param g - the graph 
+     * @param visitedEdges - already visited edges
+     * @param visitedVerts - already visited vertices
+     */
+    
+    public static void augmentFlow (Graph g, List<Edge> visitedEdges, List<Vertex> visitedVerts) {
+        int nrOfBoxes = (g.getNrOfVertices() - 2 ) / 2 ;
+        for(int i = 1 ; i<= nrOfBoxes; i++){
+            Vertex v = g.getVertex(i);
+            DFS.singlerunDFS(v, visitedEdges, visitedVerts, g.getSink());
+            if(visitedEdges.size() == 2) augmenter(visitedEdges);
+            visitedEdges.clear();
+        }
+    }
+    public static void augmenter(List<Edge> edges) {
+        
+        for(Edge e : edges){
+            e.setFlow(1);
         }
         
- 
-        Edge pE = parentEdges.get(v.getNumber()-1);
-
-        Vertex p = pE.getFrom();
-
-        parentEdges.remove(pE);
-        List<Edge> path = getPath(parentEdges, p);
-
-        path.add(pE);
-        return path;
     }
-
-    private static void augmentFlow(Graph flowGraph,Graph residualGraph , Edge e) {
-
-        Vertex vU = e.getFrom();
-        Vertex vV = e.getTo();
-        
-        Edge eInfo = flowGraph.getEdge(vU, vV);
-        if(eInfo != null) {
-            System.out.println("increainsg flow ");
-            eInfo.setFlow(1);
-        } else {
-            System.out.println("not increasing flow");
-            flowGraph.addEdge(vV,vU);
-        }
-
-        residualGraph.removeEdge(e);
-
-    }
+    
+  
 }

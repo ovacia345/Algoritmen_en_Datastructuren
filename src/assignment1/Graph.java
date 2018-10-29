@@ -20,7 +20,6 @@ public class Graph {
             adjacencyLists.add(new Vertex(vertex));
         }
         
-        System.out.println("graph met " + nrOfVertices + " vertices");
     }
     
     
