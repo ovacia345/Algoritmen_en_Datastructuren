@@ -1,5 +1,8 @@
 package assignment1;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  *
  * @author N.C.M. van Nistelrooij
@@ -7,99 +10,38 @@ package assignment1;
  */
 public class Graph {
     private final int nrOfVertices;
-    private final Edge[][] adjacencyMatrix;
-
-    public Graph(int nrOfVertices) {
-        this.nrOfVertices = nrOfVertices;
-        adjacencyMatrix = new Edge[nrOfVertices][nrOfVertices];
-    }    
-    
-    public Graph(Graph graph) {
-        this(graph.getNrOfVertices());
-
-        for(int from = 0; from < nrOfVertices; from++) {
-            for(int to = 0; to < nrOfVertices; to++) {
-                if(graph.adjacencyMatrix[from][to] != null) {
-                    addEdge(from, to);
-                }
-            }
-        }
-    }
+    private final List<Integer>[] adjacencyLists;
 
     /**
-     * Add an edge from {@code from} to {@code to} with flow 0 and capacity 1 or
-     * residual capacity 1.
+     * Initialize graph with {@code nrOfVertices} vertices.
+     * @param nrOfVertices the number of vertices of the graph
+     */
+    public Graph(int nrOfVertices) {
+        this.nrOfVertices = nrOfVertices;
+
+        adjacencyLists = new List[nrOfVertices];
+        for(int vertex = 0; vertex < nrOfVertices; vertex++) {
+            adjacencyLists[vertex] = new LinkedList<>();
+        }
+    }    
+
+    /**
+     * Add an edge from {@code from} to {@code to} to this graph.
      * @param from the source vertex
      * @param to the destination vertex
      */
     public void addEdge(int from, int to) {
-        adjacencyMatrix[from][to] = new Edge(from, to);
+        adjacencyLists[from].add(to);
     }
 
     /**
-     * Get the source of this graph in the context of a Ford-Fulkerson method.
-     * @return source of the graph
+     * Get the list of adjacent vertices of vertex {@code vertex}.
+     * @param vertex the source vertex
+     * @return a list of all the vertices that are reachable through exactly one
+     * edge from vertex {@code vertex}
      */
-    public int getSource() {
-        return 0;
-    }
-
-    /**
-     * Get the sink of this graph in the context of a Ford-Fulkerson mathod.
-     * @return sink of the graph
-     */
-    public int getSink() {
-        return nrOfVertices - 1;
-    }
-
-    /**
-     * Get the array of edges from {@code from} to all vertices.
-     * @param from the source vertex
-     * @return an array of all the edges from from to all vertices. The array
-     * can have null edges
-     */
-    public Edge[] getAdjacencyList(int from) {
-        return adjacencyMatrix[from];
-    }
-
-    /**
-     * Set flow of edge from {@code from} to {@code to} to {@code flow}.
-     * @param from the source vertex
-     * @param to the destination vertex
-     * @param flow the new value for the flow of the edge
-     */
-    public void setFlow(int from, int to, int flow) {
-        adjacencyMatrix[from][to].setFlow(flow);
-    }
-
-    /**
-     * Get the edge from {@code from} to {@code to}.
-     * @param from the source vertex
-     * @param to the destination vertex
-     * @return the edge from {@code from} to {@code to}
-     */
-    public Edge getEdge(int from, int to) {
-        return adjacencyMatrix[from][to];        
-    }
-
-    /**
-     * Remove the edge from {@code from} to {@code to}.
-     * @param from the source vertex
-     * @param to the destination vertex
-     */
-    public void removeEdge(int from, int to){
-        adjacencyMatrix[from][to] = null;
-    }
-
-    /**
-     * Returns whether or not the edge from {@code from} to {@code to} exists
-     * in this graph.
-     * @param from the source vertex
-     * @param to the destination vertex
-     * @return whether or not the edge exists in the graph
-     */
-    public boolean hasEdge(int from, int to){
-        return adjacencyMatrix[from][to] != null;
+    public List<Integer> getAdjacencyList(int vertex) {
+        return adjacencyLists[vertex];
     }
 
     /**
@@ -120,11 +62,9 @@ public class Graph {
         StringBuilder stringBuilder = new StringBuilder();
 
         for(int from = 0; from < nrOfVertices; from++) {
-            for(int to = 0; to < nrOfVertices; to++) {
-                Edge edge = adjacencyMatrix[from][to];
-                if(edge != null) {
-                    stringBuilder.append(edge);
-                }
+            List<Integer> adjacencyList = adjacencyLists[from];
+            for(int to : adjacencyList) {
+                stringBuilder.append(String.format("%d - %d\n", from, to));
             }
         }
 

@@ -8,33 +8,40 @@ import java.util.Queue;
  * @author N.C.M. van Nistelrooij
  */
 public class BFS {
-    public static Edge[] run(Graph graph, int source, int sink) {
-        int nrOfVertices = graph.getNrOfVertices();
-        boolean[] discovered = new boolean[nrOfVertices];
-        Edge[] parentEdges = new Edge[nrOfVertices];
-
-        discovered[source] = true;
+    /**
+     * Checks whether or not there are still more matches possible.
+     * @param graph the input graph
+     * @param pair the array where {@code pair[u]} is the vertex that forms a
+     * match with {@code u}
+     * @param dist the distance array
+     * @param nrOfBoxes the number of boxes
+     * @return whether or not there are still more matches possible.
+     */
+    public static boolean run(Graph graph, int[] pair, int[] dist, int nrOfBoxes) {
         Queue<Integer> queue = new LinkedList<>();
-        queue.add(source);
+
+        for(int box = 1; box <= nrOfBoxes; box++) {
+            if(pair[box] == 0) {
+                dist[box] = 0;
+                queue.add(box);
+            } else {
+                dist[box] = Integer.MAX_VALUE;
+            }
+        }
+        dist[0] = Integer.MAX_VALUE;
 
         while(!queue.isEmpty()) {
             int vertexU = queue.remove();
-            Edge[] adjacencyListVertexU = graph.getAdjacencyList(vertexU);
-
-            for(Edge edge : adjacencyListVertexU) {
-                int vertexV = edge.getTo();
-                if(discovered[vertexV] == false) {
-                    discovered[vertexV] = true;
-                    parentEdges[vertexV] = edge;
-                    queue.add(vertexV);
-
-                    if(discovered[sink] == true) {
-                        return parentEdges;
+            if(dist[vertexU] < dist[0]) {
+                for(int vertexV : graph.getAdjacencyList(vertexU)) {
+                    if(dist[pair[vertexV]] == Integer.MAX_VALUE) {
+                        dist[pair[vertexV]] = dist[vertexU] + 1;
+                        queue.add(pair[vertexV]);
                     }
-                }               
-            }           
+                }
+            }
         }
-        
-        return parentEdges;
+
+        return dist[0] != Integer.MAX_VALUE;
     }
 }
