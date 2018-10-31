@@ -7,7 +7,7 @@ import java.util.Scanner;
  * @author chihab
  */
 public class IOHandler {
-    static Scanner input = new Scanner(System.in);
+    private final static Scanner input = new Scanner(System.in);
     
     
     public static String getText() {
