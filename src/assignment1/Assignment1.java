@@ -9,18 +9,20 @@ import java.util.Arrays;
  */
 public class Assignment1 {
     public static void runAssignment1() {
-        // Reading in boxes from standard input
+        // Reading in the number of boxes
         int nrOfBoxes = IOHandler.getInteger();
+
+        // Reading in all the boxes
         Box[] boxes = readBoxes(nrOfBoxes);
 
         // Creating bipartite graph
         Graph graph = createGraph(boxes, nrOfBoxes);
 
-        // Algorithm
-        int flowValue = FordFulkerson.hopcroftKarp(graph, nrOfBoxes);
+        // Algorithm using Hopcroft-Karp
+        int nrOfMatches = FordFulkerson.hopcroftKarp(graph, nrOfBoxes);
 
         // Printing minimum number of visible boxes
-        IOHandler.print(Integer.toString(nrOfBoxes - flowValue));
+        IOHandler.print(Integer.toString(nrOfBoxes - nrOfMatches));
     }
 
     private static Box[] readBoxes(int nrOfBoxes) {
@@ -30,8 +32,7 @@ public class Assignment1 {
             double xLength = IOHandler.getDouble();
             double yLength = IOHandler.getDouble();
             double zLength = IOHandler.getDouble();
-            Box box = new Box(xLength, yLength, zLength);
-            boxes[i] = box;
+            boxes[i] = new Box(xLength, yLength, zLength);
         }
 
         return boxes;
@@ -47,16 +48,16 @@ public class Assignment1 {
             graph.addEdge(source, box);
             graph.addEdge(box + nrOfBoxes, sink);
         }
-
+        
         // {@code boxes} is sorted based on volume from smallest to biggest
-        // Then every pair of boxes, such that the second in the pair has a bigger
-        // volume, is tested and if the two boxes fit, an edge is added
         Arrays.sort(boxes);
-        for(int i = 0; i < nrOfBoxes - 1; i++){
-            for(int j=i + 1; j < nrOfBoxes; j++){
-                if(boxes[i].fitsIn(boxes[j])) {
-                    graph.addEdge(i + 1, j + 1 + nrOfBoxes); // Box i has index i + 1 and box
-                                                             // j has index j + 1 + nrOfBoxes
+        // Then every pair of boxes, such that the second in the pair has a bigger
+        // volume, is tested and if the two boxes fit, an edge is added.
+        for(int smallBox = 0; smallBox < nrOfBoxes - 1; smallBox++){
+            for(int bigBox = smallBox + 1; bigBox < nrOfBoxes; bigBox++){
+                if(boxes[smallBox].fitsIn(boxes[bigBox])) {
+                    graph.addEdge(smallBox + 1, bigBox + 1 + nrOfBoxes);    // smallBox has vertex i + 1
+                                                                            // bigBox has vertex j + 1 + nrOfBoxes
                 }          
             }
         }
