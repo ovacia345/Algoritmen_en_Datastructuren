@@ -19,8 +19,8 @@ public class FordFulkerson {
         int nrOfMatches = 0;
 
         while(BFS.run(graph, pair, dist, nrOfBoxes)) {
-            for(int vertexU = 1; vertexU <= nrOfBoxes; vertexU++) {
-                if(pair[vertexU] == 0 && DFS.run(vertexU, graph, pair, dist)) {
+            for(int smallBox = 1; smallBox <= nrOfBoxes; smallBox++) {
+                if(pair[smallBox] == 0 && DFS.run(smallBox, graph, pair, dist)) {
                     nrOfMatches++;
                 }
             }

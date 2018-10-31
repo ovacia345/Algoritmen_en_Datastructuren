@@ -21,23 +21,23 @@ public class BFS {
     public static boolean run(Graph graph, int[] pair, int[] dist, int nrOfBoxes) {
         Queue<Integer> queue = new LinkedList<>();
 
-        for(int box = 1; box <= nrOfBoxes; box++) {
-            if(pair[box] == 0) {
-                dist[box] = 0;
-                queue.add(box);
+        for(int smallBox = 1; smallBox <= nrOfBoxes; smallBox++) {
+            if(pair[smallBox] == 0) {
+                dist[smallBox] = 0;
+                queue.add(smallBox);
             } else {
-                dist[box] = Integer.MAX_VALUE;
+                dist[smallBox] = Integer.MAX_VALUE;
             }
         }
         dist[0] = Integer.MAX_VALUE;
 
         while(!queue.isEmpty()) {
-            int vertexU = queue.remove();
-            if(dist[vertexU] < dist[0]) {
-                for(int vertexV : graph.getAdjacencyList(vertexU)) {
-                    if(dist[pair[vertexV]] == Integer.MAX_VALUE) {
-                        dist[pair[vertexV]] = dist[vertexU] + 1;
-                        queue.add(pair[vertexV]);
+            int smallBox = queue.remove();
+            if(dist[smallBox] < dist[0]) {
+                for(int bigBox : graph.getAdjacencyList(smallBox)) {
+                    if(dist[pair[bigBox]] == Integer.MAX_VALUE) {
+                        dist[pair[bigBox]] = dist[smallBox] + 1;
+                        queue.add(pair[bigBox]);
                     }
                 }
             }
