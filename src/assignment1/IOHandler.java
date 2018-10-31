@@ -4,7 +4,8 @@ import java.util.Scanner;
 
 /**
  *
- * @author chihab
+ * @author N.C.M van Nistelrooij
+ * @author C Amghane
  */
 public class IOHandler {
     private final static Scanner input = new Scanner(System.in);
