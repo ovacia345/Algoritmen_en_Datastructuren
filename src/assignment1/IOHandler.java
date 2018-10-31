@@ -8,8 +8,7 @@ import java.util.Scanner;
  */
 public class IOHandler {
     private final static Scanner input = new Scanner(System.in);
-    
-    
+        
     public static String getText() {
         String textualInput = input.next();
         

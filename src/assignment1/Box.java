@@ -11,7 +11,7 @@ public class Box implements Comparable<Box> {
     private final double[] sideLengths;
 
     /**
-     * Initialize box where the {@code sideLenghts} array is already sorted.
+     * Initialize box where the {@code sideLenghts} array is sorted.
      * @param xLength the first side length
      * @param yLength the second side length
      * @param zLength the third side length

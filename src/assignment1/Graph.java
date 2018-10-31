@@ -21,6 +21,7 @@ public class Graph {
 
         adjacencyLists = new List[nrOfVertices];
         for(int vertex = 0; vertex < nrOfVertices; vertex++) {
+            // {@code ArrayList} was apparently faster than {@code LinkedList}
             adjacencyLists[vertex] = new ArrayList<>();
         }
     }    
@@ -54,7 +55,7 @@ public class Graph {
 
     /**
      * Returns a {@code String} representation of this graph according to the
-     * {@code toString()} of the edges.
+     * edges.
      * @return {@code String} representation of the graph
      */
     @Override

@@ -26,24 +26,24 @@ public class Assignment1 {
     }
 
     private static Box[] readBoxes(int nrOfBoxes) {
-        Box[] boxes = new Box[nrOfBoxes]; // Initialize Box array
+        Box[] boxes = new Box[nrOfBoxes];
 
-        for(int i = 0; i < nrOfBoxes; i++) {
+        for(int box = 0; box < nrOfBoxes; box++) {
             double xLength = IOHandler.getDouble();
             double yLength = IOHandler.getDouble();
             double zLength = IOHandler.getDouble();
-            boxes[i] = new Box(xLength, yLength, zLength);
+            boxes[box] = new Box(xLength, yLength, zLength);
         }
 
         return boxes;
     }
     
     private static Graph createGraph(Box[] boxes, int nrOfBoxes) {
-        int nrOfVertices = nrOfBoxes * 2 + 2; // bipartite, +sink +source
-        Graph graph = new Graph(nrOfVertices); // source = souce, sink = sink;
+        int nrOfVertices = nrOfBoxes * 2 + 2; // Bipartite graph + sink + source
+        Graph graph = new Graph(nrOfVertices);
         int source = 0; // First vertex
         int sink = nrOfVertices - 1; // Last vertex
-        //source connections  + sink connections
+        // Source edges + sink edges
         for(int box  = 1 ; box <= nrOfBoxes; box++) {
             graph.addEdge(source, box);
             graph.addEdge(box + nrOfBoxes, sink);
@@ -51,13 +51,14 @@ public class Assignment1 {
         
         // {@code boxes} is sorted based on volume from smallest to biggest
         Arrays.sort(boxes);
-        // Then every pair of boxes, such that the second in the pair has a bigger
-        // volume, is tested and if the two boxes fit, an edge is added.
+        // Then every pair of boxes, where the second in the pair has a bigger
+        // volume, is checked and if the two boxes fit, an edge is added.
         for(int smallBox = 0; smallBox < nrOfBoxes - 1; smallBox++){
             for(int bigBox = smallBox + 1; bigBox < nrOfBoxes; bigBox++){
                 if(boxes[smallBox].fitsIn(boxes[bigBox])) {
-                    graph.addEdge(smallBox + 1, bigBox + 1 + nrOfBoxes);    // smallBox has vertex i + 1
-                                                                            // bigBox has vertex j + 1 + nrOfBoxes
+                    // {@code smallBox} has vertex {@code smallBox} + 1
+                    // {@code bigBox} has vertex {@code bigBox} + 1 + {@code nrOfBoxes}
+                    graph.addEdge(smallBox + 1, bigBox + 1 + nrOfBoxes);
                 }          
             }
         }
