@@ -30,6 +30,14 @@ public class Box implements Comparable<Box> {
     }
 
     /**
+     * Get the volume of this box
+     * @return volume of the box
+     */
+    public double getVolume() {
+        return sideLengths[0] * sideLengths[1] * sideLengths[2];
+    }
+
+    /**
      * Checks whether this box fits inside the argument box.
      * @param otherBox the argument box
      * @return whether or not this box fits into the argument box
@@ -53,12 +61,6 @@ public class Box implements Comparable<Box> {
      */
     @Override
     public int compareTo(Box otherBox) {
-        double volume = sideLengths[0] * sideLengths[1] * sideLengths[2];
-
-        double[] otherBoxSideLenghts = otherBox.getSideLengths();
-        double otherBoxVolume = otherBoxSideLenghts[0] * otherBoxSideLenghts[1]
-                * otherBoxSideLenghts[2];
-
-        return Double.compare(volume, otherBoxVolume);
+        return Double.compare(getVolume(), otherBox.getVolume());
     }
 }
