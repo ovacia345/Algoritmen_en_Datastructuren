@@ -1,6 +1,6 @@
 package assignment1;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +21,7 @@ public class Graph {
 
         adjacencyLists = new List[nrOfVertices];
         for(int vertex = 0; vertex < nrOfVertices; vertex++) {
-            adjacencyLists[vertex] = new LinkedList<>();
+            adjacencyLists[vertex] = new ArrayList<>();
         }
     }    
 
