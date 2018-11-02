@@ -1,5 +1,6 @@
 package assignment1;
 
+import static assignment1.FordFulkerson.NIL;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -23,18 +24,18 @@ public class BFS {
         Queue<Integer> queue = new LinkedList<>();
 
         for(int smallBox = 1; smallBox <= nrOfBoxes; smallBox++) {
-            if(matches[smallBox] == 0) {
+            if(matches[smallBox] == NIL) {
                 distances[smallBox] = 0;
                 queue.add(smallBox);
             } else {
                 distances[smallBox] = Integer.MAX_VALUE;
             }
         }
-        distances[0] = Integer.MAX_VALUE;
+        distances[NIL] = Integer.MAX_VALUE;
 
         while(!queue.isEmpty()) {
             int smallBox = queue.remove();
-            if(distances[smallBox] < distances[0]) {
+            if(distances[smallBox] < distances[NIL]) {
                 for(int bigBox : graph.getAdjacencyList(smallBox)) {
                     if(distances[matches[bigBox]] == Integer.MAX_VALUE) {
                         distances[matches[bigBox]] = distances[smallBox] + 1;
@@ -44,6 +45,6 @@ public class BFS {
             }
         }
 
-        return distances[0] != Integer.MAX_VALUE;
+        return distances[NIL] != Integer.MAX_VALUE;
     }
 }

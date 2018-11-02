@@ -1,5 +1,7 @@
 package assignment1;
 
+import static assignment1.FordFulkerson.NIL;
+
 /**
  *
  * @author N.C.M. van Nistelrooij
@@ -18,7 +20,7 @@ public class DFS {
      */
     public static boolean run(int smallBox, Graph graph, int[] matches,
             int[] distances) {
-        if(smallBox != 0) {
+        if(smallBox != NIL) {
             for(int bigBox : graph.getAdjacencyList(smallBox)) {
                 if(distances[matches[bigBox]] == distances[smallBox] + 1 &&
                         run(matches[bigBox], graph, matches, distances)) {

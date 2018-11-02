@@ -6,6 +6,8 @@ package assignment1;
  * @author C Amghane
  */
 public class FordFulkerson {
+    public final static int NIL = 0;
+
     /**
      * Computes the maximum number of bipartite matches in the input graph.
      * @param graph the input graph, must be a bipartite graph + source + sink
@@ -20,7 +22,7 @@ public class FordFulkerson {
 
         while(BFS.run(graph, matches, distances, nrOfBoxes)) {
             for(int smallBox = 1; smallBox <= nrOfBoxes; smallBox++) {
-                if(matches[smallBox] == 0 &&
+                if(matches[smallBox] == NIL &&
                         DFS.run(smallBox, graph, matches, distances)) {
                     nrOfMatches++;
                 }
