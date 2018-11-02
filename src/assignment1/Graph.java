@@ -44,15 +44,7 @@ public class Graph {
     public List<Integer> getAdjacencyList(int vertex) {
         return adjacencyLists[vertex];
     }
-
-    /**
-     * Get the number of vertices of this graph.
-     * @return number of vertices of the graph
-     */
-    public int getNrOfVertices() {
-        return nrOfVertices;
-    }
-
+    
     /**
      * Returns a {@code String} representation of this graph according to the
      * edges.

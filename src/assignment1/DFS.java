@@ -11,23 +11,24 @@ public class DFS {
      * vertex.
      * @param smallBox the vertex to be matched
      * @param graph the input graph
-     * @param pair the array where {@code pair[u]} is the vertex that forms a
+     * @param matches the array where {@code pair[u]} is the vertex that forms a
      * match with {@code u}
-     * @param dist the distance array
+     * @param distances the distance array
      * @return whether or not {@code vertexU} can be matched with another vertex
      */
-    public static boolean run(int smallBox, Graph graph, int[] pair, int[] dist) {
+    public static boolean run(int smallBox, Graph graph, int[] matches,
+            int[] distances) {
         if(smallBox != 0) {
             for(int bigBox : graph.getAdjacencyList(smallBox)) {
-                if(dist[pair[bigBox]] == dist[smallBox] + 1 &&
-                        run(pair[bigBox], graph, pair, dist)) {
-                    pair[bigBox] = smallBox;
-                    pair[smallBox] = bigBox;
+                if(distances[matches[bigBox]] == distances[smallBox] + 1 &&
+                        run(matches[bigBox], graph, matches, distances)) {
+                    matches[bigBox] = smallBox;
+                    matches[smallBox] = bigBox;
                     return true;
                 }
             }
 
-            dist[smallBox] = Integer.MAX_VALUE;
+            distances[smallBox] = Integer.MAX_VALUE;
             return false;
         }
 

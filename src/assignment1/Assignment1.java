@@ -8,9 +8,9 @@ import java.util.Arrays;
  * @author C Amghane
  */
 public class Assignment1 {
-    public static void runAssignment1() {
+    public static void runAssignment() {
         // Reading in the number of boxes
-        int nrOfBoxes = IOHandler.getInteger();
+        int nrOfBoxes = IOHandler.readInteger();
 
         // Reading in all the boxes
         Box[] boxes = readBoxes(nrOfBoxes);
@@ -22,16 +22,16 @@ public class Assignment1 {
         int nrOfMatches = FordFulkerson.hopcroftKarp(graph, nrOfBoxes);
 
         // Printing minimum number of visible boxes
-        IOHandler.print(Integer.toString(nrOfBoxes - nrOfMatches));
+        IOHandler.write(Integer.toString(nrOfBoxes - nrOfMatches));
     }
 
     private static Box[] readBoxes(int nrOfBoxes) {
         Box[] boxes = new Box[nrOfBoxes];
 
         for(int box = 0; box < nrOfBoxes; box++) {
-            double xLength = IOHandler.getDouble();
-            double yLength = IOHandler.getDouble();
-            double zLength = IOHandler.getDouble();
+            double xLength = IOHandler.readDouble();
+            double yLength = IOHandler.readDouble();
+            double zLength = IOHandler.readDouble();
             boxes[box] = new Box(xLength, yLength, zLength);
         }
 
@@ -39,15 +39,8 @@ public class Assignment1 {
     }
     
     private static Graph createGraph(Box[] boxes, int nrOfBoxes) {
-        int nrOfVertices = nrOfBoxes * 2 + 2; // Bipartite graph + sink + source
+        int nrOfVertices = nrOfBoxes * 2 + 1; // NIL vertex + bipartite graph
         Graph graph = new Graph(nrOfVertices);
-        int source = 0; // First vertex
-        int sink = nrOfVertices - 1; // Last vertex
-        // Source edges + sink edges
-        for(int box  = 1 ; box <= nrOfBoxes; box++) {
-            graph.addEdge(source, box);
-            graph.addEdge(box + nrOfBoxes, sink);
-        }
         
         // {@code boxes} is sorted based on volume from smallest to biggest
         Arrays.sort(boxes);

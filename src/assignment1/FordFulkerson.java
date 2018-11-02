@@ -14,13 +14,14 @@ public class FordFulkerson {
      * the number of boxes that are put into other boxes
      */
     public static int hopcroftKarp(Graph graph, int nrOfBoxes) {
-        int[] pair = new int[nrOfBoxes * 2 + 1];
-        int[] dist = new int[nrOfBoxes * 2 + 1];
+        int[] matches = new int[nrOfBoxes * 2 + 1];
+        int[] distances = new int[nrOfBoxes * 2 + 1];
         int nrOfMatches = 0;
 
-        while(BFS.run(graph, pair, dist, nrOfBoxes)) {
+        while(BFS.run(graph, matches, distances, nrOfBoxes)) {
             for(int smallBox = 1; smallBox <= nrOfBoxes; smallBox++) {
-                if(pair[smallBox] == 0 && DFS.run(smallBox, graph, pair, dist)) {
+                if(matches[smallBox] == 0 &&
+                        DFS.run(smallBox, graph, matches, distances)) {
                     nrOfMatches++;
                 }
             }

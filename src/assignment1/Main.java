@@ -7,6 +7,6 @@ package assignment1;
  */
 public class Main {
     public static void main(String[] args) {
-        Assignment1.runAssignment1();
+        Assignment1.runAssignment();
     }
 }
