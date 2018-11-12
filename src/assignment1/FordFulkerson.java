@@ -16,8 +16,9 @@ public class FordFulkerson {
      * the number of boxes that are put inside other boxes
      */
     public static int hopcroftKarp(Graph graph, int nrOfBoxes) {
-        int[] matches = new int[nrOfBoxes * 2 + 1];
-        int[] distances = new int[nrOfBoxes * 2 + 1];
+        int nrOfVertices = graph.getNrOfVertices();
+        int[] matches = new int[nrOfVertices];
+        int[] distances = new int[nrOfVertices];
         int nrOfMatches = 0;
 
         while(BFS.run(graph, matches, distances, nrOfBoxes)) {

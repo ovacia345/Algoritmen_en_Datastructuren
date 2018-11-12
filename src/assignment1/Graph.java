@@ -24,7 +24,15 @@ public class Graph {
             // {@code ArrayList} was apparently faster than {@code LinkedList}
             adjacencyLists[vertex] = new ArrayList<>();
         }
-    }    
+    }
+
+    /**
+     * get number of vertices of this graph
+     * @return number of vertices
+     */
+    public int getNrOfVertices() {
+        return nrOfVertices;
+    }
 
     /**
      * Add an edge from {@code from} to {@code to} to this graph.
