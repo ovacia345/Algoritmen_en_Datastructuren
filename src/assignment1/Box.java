@@ -11,7 +11,7 @@ public class Box implements Comparable<Box> {
     private final double[] sideLengths;
 
     /**
-     * Initialize box where the {@code sideLenghts} array is sorted.
+     * Initialize box where the {@code sideLengths} array is sorted.
      * @param xLength the first side length
      * @param yLength the second side length
      * @param zLength the third side length
@@ -25,7 +25,7 @@ public class Box implements Comparable<Box> {
      * Get the side lengths of this box.
      * @return array {@code sideLenghts}; the side lengths of the box
      */
-    public double[] getSideLengths() {
+    private double[] getSideLengths() {
         return sideLengths;
     }
 
@@ -33,7 +33,7 @@ public class Box implements Comparable<Box> {
      * Get the volume of this box
      * @return volume of the box
      */
-    public double getVolume() {
+    private double getVolume() {
         return sideLengths[0] * sideLengths[1] * sideLengths[2];
     }
 

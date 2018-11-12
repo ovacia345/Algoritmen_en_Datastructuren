@@ -9,14 +9,17 @@ import static assignment1.FordFulkerson.NIL;
  */
 public class DFS {
     /**
-     * Checks whether or not there is a match for {@code vertexU} with another
+     * Checks whether or not there is a match for {@code smallBox} with another
      * vertex.
+     * It also updates the {@code matches} array when {@code smallBox} can be
+     * matched.
      * @param smallBox the vertex to be matched
      * @param graph the input graph
-     * @param matches the array where {@code pair[u]} is the vertex that forms a
-     * match with {@code u}
+     * @param matches the array where {@code matches[u]} is the vertex that
+     * forms a match with {@code u}
      * @param distances the distance array
-     * @return whether or not {@code vertexU} can be matched with another vertex
+     * @return whether or not {@code smallBox} can be matched with another
+     * vertex
      */
     public static boolean run(int smallBox, Graph graph, int[] matches,
             int[] distances) {

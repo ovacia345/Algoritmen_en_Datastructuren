@@ -10,10 +10,10 @@ public class FordFulkerson {
 
     /**
      * Computes the maximum number of bipartite matches in the input graph.
-     * @param graph the input graph, must be a bipartite graph + source + sink
+     * @param graph the input graph, must be a bipartite graph + NIL vertex
      * @param nrOfBoxes the number of boxes
      * @return the maximum number of bipartite matches in the input graph, i.e.
-     * the number of boxes that are put into other boxes
+     * the number of boxes that are put inside other boxes
      */
     public static int hopcroftKarp(Graph graph, int nrOfBoxes) {
         int[] matches = new int[nrOfBoxes * 2 + 1];

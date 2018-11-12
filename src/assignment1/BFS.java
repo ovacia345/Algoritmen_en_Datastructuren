@@ -12,10 +12,12 @@ import java.util.Queue;
 public class BFS {
     /**
      * Checks whether or not there are still more matches possible.
+     * It also updates the distances array based on the matches made in
+     * {@code DFS.run()}.
      * @param graph the input graph
-     * @param matches the array where {@code pair[u]} is the vertex that forms a
-     * match with {@code u}
-     * @param distances the distance array
+     * @param matches the array where {@code matches[u]} is the vertex that
+     * forms a match with {@code u}
+     * @param distances the distances array
      * @param nrOfBoxes the number of boxes
      * @return whether or not there are still more matches possible.
      */
