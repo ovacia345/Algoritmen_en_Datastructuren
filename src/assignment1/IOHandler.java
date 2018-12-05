@@ -1,6 +1,7 @@
 package assignment1;
 
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -20,5 +21,17 @@ public class IOHandler {
 
     public static void write(String string) {
         System.out.println(string);
+    }
+    
+    public static void main(String[] args) {
+        String p = "10010101010110";
+        int[] bb = new int[p.length()];
+        
+        for(int i =0; i<p.length(); i++) {
+            System.out.println(p.charAt(i));
+            bb[i] = Character.getNumericValue(p.charAt(i));
+            System.out.println(" bb " + bb[i]);
+        }
+        
     }
 }
