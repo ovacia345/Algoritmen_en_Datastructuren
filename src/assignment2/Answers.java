@@ -25,15 +25,23 @@ public class Answers {
         this(BitSet.valueOf(new long[]{answers}), nrOfQuestions);
     }
 
+    public Answers get(int fromIndex, int toIndex) {
+        BitSet get = answers.get(nrOfQuestions - toIndex, nrOfQuestions - fromIndex);
+        return new Answers(get, toIndex - fromIndex);
+    }
+
     public Answers get(int toIndex) {
-        BitSet get = answers.get(nrOfQuestions - toIndex, nrOfQuestions);
-        return new Answers(get, toIndex);
+        return get(0, toIndex);
+    }
+
+    public Answers getCompliment(int fromIndex, int toIndex) {
+        BitSet compliment = answers.get(nrOfQuestions - toIndex, nrOfQuestions - fromIndex);
+        compliment.flip(0, toIndex - fromIndex);
+        return new Answers(compliment, toIndex - fromIndex);
     }
 
     public Answers getCompliment(int toIndex) {
-        BitSet compliment = answers.get(nrOfQuestions - toIndex, nrOfQuestions);
-        compliment.flip(0, toIndex);
-        return new Answers(compliment, toIndex);
+        return getCompliment(0, toIndex);
     }
 
     public BitSet getBitSet() {
@@ -58,6 +66,16 @@ public class Answers {
         BitSet differences = (BitSet)answers.clone();
         differences.xor(otherAnswers.getBitSet());
         return differences.cardinality();
+    }
+
+    public Answers concatenate(Answers otherAnswers, int nrOfOtherQuestions) {
+        long answersLong = answers.length() > 0
+                ? answers.toLongArray()[0] : 0;
+        long otherAnswersLong = otherAnswers.getBitSet().length() > 0
+                ? otherAnswers.getBitSet().toLongArray()[0] : 0;
+
+        long concatenation = otherAnswersLong | (answersLong << nrOfOtherQuestions);
+        return new Answers(concatenation, nrOfQuestions + nrOfOtherQuestions);
     }
 
     @Override
