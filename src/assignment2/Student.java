@@ -6,20 +6,19 @@ package assignment2;
  * @author N.C.M. van Nistelrooij
  */
 public class Student implements Comparable<Student> {
-    private final BinaryString answers;
+    private final Answers answers;
     private final int score;
-    private final int nrOfCorrectAnswersLeftHalf, nrOfIncorrectAnswersLeftHalf;
-    private int nrOfCorrectAnswersRightHalf, nrOfIncorrectAnswersRightHalf;
+    private final int maxErrorsLeftHalf, maxErrorsComplimentLeftHalf;
     
-    public Student(int[] answers, int score,
-            int nrOfCorrectAnswersLeftHalf, int nrOfIncorrectAnswersLeftHalf){
-        this.answers = new BinaryString(answers, -1, 0);
+    public Student(Answers answers, int score,
+            int maxErrorsLeftHalf, int maxErrorsComplimentLeftHalf){
+        this.answers = answers;
         this.score = score;
-        this.nrOfCorrectAnswersLeftHalf = nrOfCorrectAnswersLeftHalf;
-        this.nrOfIncorrectAnswersLeftHalf = nrOfIncorrectAnswersLeftHalf;
+        this.maxErrorsLeftHalf = maxErrorsLeftHalf;
+        this.maxErrorsComplimentLeftHalf = maxErrorsComplimentLeftHalf;
     }
     
-    public BinaryString getAnswers() {
+    public Answers getAnswers() {
         return answers;
     }
 
@@ -27,36 +26,19 @@ public class Student implements Comparable<Student> {
         return score;
     }
 
-    public int getNrOfCorrectAnswersLeftHalf() {
-        return nrOfCorrectAnswersLeftHalf;
+    public int getMaxErrorsLeftHalf() {
+        return maxErrorsLeftHalf;
     }
 
-    public int getNrOfIncorrectAnswersLeftHalf() {
-        return nrOfIncorrectAnswersLeftHalf;
-    }
-
-    public void setNrOfCorrectAnswersRightHalf(int nrOfCorrectAnswersRightHalf) {
-        this.nrOfCorrectAnswersRightHalf = nrOfCorrectAnswersRightHalf;
-    }
-
-    public int getNrOfCorrectAnswersRightHalf() {
-        return nrOfCorrectAnswersRightHalf;
-    }
-
-    public void setNrOfIncorrectAnswersRightHalf(int nrOfIncorrectAnswersRightHalf) {
-        this.nrOfIncorrectAnswersRightHalf = nrOfIncorrectAnswersRightHalf;
-    }
-
-    public int getNrOfIncorrectAnswersRightHalf() {
-        return nrOfIncorrectAnswersRightHalf;
+    public int getMaxErrorsComplimentLeftHalf() {
+        return maxErrorsComplimentLeftHalf;
     }
 
     @Override
     public int compareTo(Student otherStudent) {
-        int certaintyLeftHalf = nrOfCorrectAnswersLeftHalf
-                + nrOfIncorrectAnswersLeftHalf;
-        int otherStudentCertaintyLeftHalf = otherStudent.getNrOfCorrectAnswersLeftHalf()
-                + otherStudent.getNrOfIncorrectAnswersLeftHalf();
-        return Integer.compare(otherStudentCertaintyLeftHalf, certaintyLeftHalf);
+        int certaintyLeftHalf = maxErrorsLeftHalf + maxErrorsComplimentLeftHalf;
+        int otherStudentCertaintyLeftHalf = otherStudent.getMaxErrorsLeftHalf()
+                + otherStudent.getMaxErrorsComplimentLeftHalf();
+        return Integer.compare(certaintyLeftHalf, otherStudentCertaintyLeftHalf);
     }
 }

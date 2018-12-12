@@ -13,8 +13,8 @@ public class IOHandler {
         return stdIn.nextInt();
     }
 
-    public static String read() {
-        return stdIn.next();
+    public static long readLong() {
+        return stdIn.nextLong(2);
     }
 
     public static void write(String string) {
