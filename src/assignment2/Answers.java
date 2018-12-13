@@ -8,12 +8,12 @@ import java.util.BitSet;
  */
 public class Answers {
     private final BitSet answers;
-    private final int lastFlippedIndex;
+    private final int lastChangedAnswerIndex;
     private final int nrOfQuestions;
 
-    public Answers(BitSet answers, int lastFlippedIndex, int nrOfQuestions) {
+    public Answers(BitSet answers, int lastChangedAnswerIndex, int nrOfQuestions) {
         this.answers = answers;
-        this.lastFlippedIndex = lastFlippedIndex;
+        this.lastChangedAnswerIndex = lastChangedAnswerIndex;
         this.nrOfQuestions = nrOfQuestions;
     }
 
@@ -48,8 +48,8 @@ public class Answers {
         return answers;
     }
 
-    public int getLastFlippedIndex() {
-        return lastFlippedIndex;
+    public int getLastChangedAnswerIndex() {
+        return lastChangedAnswerIndex;
     }
 
     public int getNrOfQuestions() {
@@ -68,12 +68,13 @@ public class Answers {
         return differences.cardinality();
     }
 
-    public Answers concatenate(Answers otherAnswers, int nrOfOtherQuestions) {
+    public Answers concatenate(Answers otherAnswers) {
         long answersLong = answers.length() > 0
                 ? answers.toLongArray()[0] : 0;
         long otherAnswersLong = otherAnswers.getBitSet().length() > 0
                 ? otherAnswers.getBitSet().toLongArray()[0] : 0;
 
+        int nrOfOtherQuestions = otherAnswers.getNrOfQuestions();
         long concatenation = otherAnswersLong | (answersLong << nrOfOtherQuestions);
         return new Answers(concatenation, nrOfQuestions + nrOfOtherQuestions);
     }
@@ -85,7 +86,8 @@ public class Answers {
             stringBuilder.append('0');
         }
         if(answers.length() > 0) {
-            stringBuilder.append(Long.toBinaryString(answers.toLongArray()[0]));
+            long answersLong = answers.toLongArray()[0];
+            stringBuilder.append(Long.toBinaryString(answersLong));
         }
         return stringBuilder.toString();
     }

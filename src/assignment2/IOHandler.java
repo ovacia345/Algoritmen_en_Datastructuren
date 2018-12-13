@@ -7,7 +7,7 @@ import java.util.Scanner;
  * @author N.C.M. van Nistelrooij
  */
 public class IOHandler {
-    public final static Scanner stdIn = new Scanner(System.in);
+    private final static Scanner stdIn = new Scanner(System.in);
 
     public static int readInteger() {
         return stdIn.nextInt();
