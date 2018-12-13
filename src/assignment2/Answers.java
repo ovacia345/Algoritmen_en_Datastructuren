@@ -7,18 +7,18 @@ import java.util.BitSet;
  * @author N.C.M. van Nistelrooij
  */
 public class Answers {
-    private final BitSet answers;
+    private final BitSet bitSet;
     private final int lastChangedAnswerIndex;
     private final int nrOfQuestions;
 
-    public Answers(BitSet answers, int lastChangedAnswerIndex, int nrOfQuestions) {
-        this.answers = answers;
+    public Answers(BitSet bitSet, int lastChangedAnswerIndex, int nrOfQuestions) {
+        this.bitSet = bitSet;
         this.lastChangedAnswerIndex = lastChangedAnswerIndex;
         this.nrOfQuestions = nrOfQuestions;
     }
 
-    public Answers(BitSet answers, int nrOfQuestions) {
-        this(answers, -1, nrOfQuestions);
+    public Answers(BitSet bitSet ,int nrOfQuestions) {
+        this(bitSet, -1, nrOfQuestions);
     }
 
     public Answers(long answers, int nrOfQuestions) {
@@ -26,7 +26,7 @@ public class Answers {
     }
 
     public Answers get(int fromIndex, int toIndex) {
-        BitSet get = answers.get(nrOfQuestions - toIndex, nrOfQuestions - fromIndex);
+        BitSet get = bitSet.get(nrOfQuestions - toIndex, nrOfQuestions - fromIndex);
         return new Answers(get, toIndex - fromIndex);
     }
 
@@ -35,7 +35,7 @@ public class Answers {
     }
 
     public Answers getCompliment(int fromIndex, int toIndex) {
-        BitSet compliment = answers.get(nrOfQuestions - toIndex, nrOfQuestions - fromIndex);
+        BitSet compliment = bitSet.get(nrOfQuestions - toIndex, nrOfQuestions - fromIndex);
         compliment.flip(0, toIndex - fromIndex);
         return new Answers(compliment, toIndex - fromIndex);
     }
@@ -45,7 +45,7 @@ public class Answers {
     }
 
     public BitSet getBitSet() {
-        return answers;
+        return bitSet;
     }
 
     public int getLastChangedAnswerIndex() {
@@ -57,20 +57,20 @@ public class Answers {
     }
 
     public Answers changeAnswer(int index) {
-        BitSet changedAnswers = (BitSet)answers.clone();
+        BitSet changedAnswers = (BitSet)bitSet.clone();
         changedAnswers.flip(nrOfQuestions - 1 - index);
         return new Answers(changedAnswers, index, nrOfQuestions);
     }
 
     public int getNrOfDifferencesWith(Answers otherAnswers) {
-        BitSet differences = (BitSet)answers.clone();
+        BitSet differences = (BitSet)bitSet.clone();
         differences.xor(otherAnswers.getBitSet());
         return differences.cardinality();
     }
 
     public Answers concatenate(Answers otherAnswers) {
-        long answersLong = answers.length() > 0
-                ? answers.toLongArray()[0] : 0;
+        long answersLong = bitSet.length() > 0
+                ? bitSet.toLongArray()[0] : 0;
         long otherAnswersLong = otherAnswers.getBitSet().length() > 0
                 ? otherAnswers.getBitSet().toLongArray()[0] : 0;
 
@@ -82,11 +82,11 @@ public class Answers {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        for(int i = answers.length(); i < nrOfQuestions; i++) {
+        for(int i = bitSet.length(); i < nrOfQuestions; i++) {
             stringBuilder.append('0');
         }
-        if(answers.length() > 0) {
-            long answersLong = answers.toLongArray()[0];
+        if(bitSet.length() > 0) {
+            long answersLong = bitSet.toLongArray()[0];
             stringBuilder.append(Long.toBinaryString(answersLong));
         }
         return stringBuilder.toString();

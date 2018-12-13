@@ -24,6 +24,7 @@ public class RandomInputGenerator {
             }
 
             int score = rand.nextInt(nrOfQuestions + 1);
+            score = 20;
             input.append(' ').append(score).append('\n');
         }
 
