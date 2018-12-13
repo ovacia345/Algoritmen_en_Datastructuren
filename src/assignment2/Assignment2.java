@@ -1,11 +1,12 @@
 package assignment2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  *
@@ -15,205 +16,261 @@ public class Assignment2 {
     public static void runAssignment() {
         int nrOfStudents = IOHandler.readInteger();
         int nrOfQuestions = IOHandler.readInteger();
-        int cut = nrOfQuestions / 2; // index start of right half
+        int cutIndex = nrOfQuestions / 2; // index start of right cut
         
-        Student[] students = readStudents(nrOfStudents, nrOfQuestions, cut);
-        Arrays.sort(students);
+        Student[] students = readStudents(nrOfStudents, nrOfQuestions, cutIndex);
 
-//        System.out.println("\nStudents after sorting:");
-//        for(int i = 0; i < nrOfStudents; i++) {
-//            System.out.println(i + ": " + students[i].getAnswers() + " " + students[i].getScore());
-//        }
-        
-        Map<Answers, int[]> bruteForceLeftHalfAnswers = bruteForceLeftHalf(students, cut,
-                nrOfStudents, nrOfQuestions);
+        Map<Answers, int[]> bruteForceLeftCutAnswers = bruteForceLeftCut(students,
+                cutIndex);        
+        Map<Answers, int[]> bruteForceRightCutAnswers = bruteForceRightCut(students,
+                cutIndex);
 
-//        System.out.println("\nAccepted answers left cut:");
-//        for(Entry<Answers, int[]> entry : bruteForceLeftHalfAnswers.entrySet()) {
-//            Answers leftHalfAnswers = entry.getKey();
-//            int[] nrOfErrorsArray = entry.getValue();
-//
-//            System.out.println("Answers:\t\t" + leftHalfAnswers);
-//            System.out.print("Nr. errors right half:\t");
-//            for(int nrOfErrors : nrOfErrorsArray) {
-//                System.out.print(" " + nrOfErrors);
-//            }
-//            System.out.println();
-//        }
+        Collection<int[]> nrOfErrorsLeftCutArray = bruteForceLeftCutAnswers.values();
+        Collection<int[]> nrOfNeededErrorsLeftCutArray = bruteForceRightCutAnswers.values();
 
-        List<Answers> correctAnswersList = new ArrayList<>();
-        for(Answers leftHalfAnswers : bruteForceLeftHalfAnswers.keySet()) {
-            List<Answers> answersList = bruteForceRightHalf(leftHalfAnswers, cut, nrOfQuestions,
-                    nrOfStudents, students, bruteForceLeftHalfAnswers);
-            correctAnswersList.addAll(answersList);
-        }
+        List<int[]> correctAnswersArray = new ArrayList<>(nrOfErrorsLeftCutArray);
+        correctAnswersArray.retainAll(nrOfNeededErrorsLeftCutArray);
 
 //        System.out.println();
 //        for(Answers correctAnswers : correctAnswersList) {
 //            System.out.println(correctAnswers);
 //        }
 
-        if(correctAnswersList.size() == 1) {
-            Answers correctAnswers = correctAnswersList.get(0);
+        if(correctAnswersArray.size() == 1) {
+            int[] correctAnswers = correctAnswersArray.get(0);
             IOHandler.write("\n" + correctAnswers.toString());
         } else {
-            IOHandler.write("\n" + correctAnswersList.size() + " solutions");
+            IOHandler.write("\n" + correctAnswersArray.size() + " solutions");
         }
     }
     
     private static Student[] readStudents(int nrOfStudents, int nrOfQuestions,
             int cut) {
         Student[] students = new Student[nrOfStudents];
-        int leftHalfWidth = cut;
-        int rightHalfWidth = nrOfQuestions - cut;
         
         for(int i = 0; i < nrOfStudents; i++) {
             Answers answers = new Answers(IOHandler.readLong(), nrOfQuestions);
             int score = IOHandler.readInteger();            
 
-            int maxErrorsLeftHalf = (score - rightHalfWidth) <= 0 ? leftHalfWidth :
-                    leftHalfWidth - (score - rightHalfWidth);
-            int maxErrorsComplimentLeftHalf = Math.min(leftHalfWidth, score);
-
-            students[i] = new Student(answers, score,
-                    maxErrorsLeftHalf, maxErrorsComplimentLeftHalf);
+            students[i] = new Student(answers, score, cut);
         }
         
         return students;
     }
 
-    private static Map<Answers, int[]> bruteForceLeftHalf(Student[] students,
-            int cut, int nrOfStudents, int nrOfQuestions) {
-        Map<Answers, int[]> bruteForceAnswers = new HashMap<>();
+    /**
+     *
+     * @param students
+     * @param cutIndex
+     * @return A map where the keys are the possible left cut answers and the
+     * values are arrays of number of errors of every student's left cut answers
+     * with respect to the key.
+     */
+    private static Map<Answers, int[]> bruteForceLeftCut(Student[] students, int cutIndex) {
+        Map<Answers, int[]> bruteForceLeftCutAnswers = new HashMap<>();
 
-        Student student = students[0];
-        Answers studentAnswers = student.getAnswers();
+        int bestLeftCutStudentIndex = getBestLeftCutStudentIndex(students);
+        Student student = students[bestLeftCutStudentIndex];
 
-        Iterator<Answers> it = null;
-        if(student.getMaxErrorsLeftHalf() != cut) {
-            Answers leftHalfAnswers = studentAnswers.get(cut);
-            it = new MaxKDifferencesAnswersIterator(leftHalfAnswers,
-                    student.getMaxErrorsLeftHalf());
-        } else if(student.getMaxErrorsComplimentLeftHalf() != cut) {
-            Answers complimentLeftHalfAnswers = studentAnswers.getCompliment(cut);
-            it = new MaxKDifferencesAnswersIterator(complimentLeftHalfAnswers,
-                    student.getMaxErrorsComplimentLeftHalf());
-        } else {
-            Answers leftHalf = studentAnswers.get(cut);
-            it = new MaxKDifferencesAnswersIterator(leftHalf, cut);
-        }
+        Answers[] possibleLeftCutAnswersArray = getPossibleLeftCutAnswersArray(student,
+                cutIndex);
+        for(Answers possibleLeftCutAnswers : possibleLeftCutAnswersArray) {
+            int[] nrOfErrorsLeftCutArray = new int[students.length];
 
-        while(it.hasNext()) {
-            Answers leftHalfAnswers = it.next();
-            int[] nrOfErrorsArray = new int[nrOfStudents];
-
-            for(int i = 0; i < nrOfStudents; i++) {
+            for(int i = 0; i < students.length; i++) {
                 student = students[i];
-                studentAnswers = student.getAnswers();
+                Answers studentAnswers = student.getAnswers();
 
-                if(student.getMaxErrorsLeftHalf() != cut) {
-                    Answers studentLeftHalfAnswers = studentAnswers.get(cut);
-                    int nrOfErrors =
-                            studentLeftHalfAnswers.getNrOfDifferencesWith(leftHalfAnswers);
-                    if(nrOfErrors > student.getMaxErrorsLeftHalf()) {
+                if(student.getMaxErrorsComplimentLeftCut() < cutIndex) {
+                    Answers studentComplimentLeftCutAnswers = studentAnswers.getCompliment(cutIndex);
+                    int studentNrOfErrorsComplimentLeftCut =
+                            studentComplimentLeftCutAnswers.getNrOfDifferencesWith(possibleLeftCutAnswers);
+                    if(studentNrOfErrorsComplimentLeftCut
+                            > student.getMaxErrorsComplimentLeftCut()) {
                         break;
                     } else {
-                        int nrOfErrorsRightHalf = nrOfQuestions - student.getScore() -
-                                nrOfErrors;
-                        nrOfErrorsArray[i] = nrOfErrorsRightHalf;
-                    }
-                } else if(student.getMaxErrorsComplimentLeftHalf() != cut) {
-                    Answers complimentStudentLeftHalfAnswers = studentAnswers.getCompliment(cut);
-                    int complimentNrOfErrors =
-                            complimentStudentLeftHalfAnswers.getNrOfDifferencesWith(leftHalfAnswers);
-                    if(complimentNrOfErrors
-                            > student.getMaxErrorsComplimentLeftHalf()) {
-                        break;
-                    } else {
-                        int nrOfErrorsRightHalf = nrOfQuestions - student.getScore() -
-                                studentAnswers.get(cut).getNrOfDifferencesWith(leftHalfAnswers);
-                        nrOfErrorsArray[i] = nrOfErrorsRightHalf;
+                        nrOfErrorsLeftCutArray[i] = cutIndex - studentNrOfErrorsComplimentLeftCut;
                     }
                 } else {
-                    int nrOfErrorsRightHalf = nrOfQuestions - student.getScore() -
-                            studentAnswers.get(cut).getNrOfDifferencesWith(leftHalfAnswers);
-                    nrOfErrorsArray[i] = nrOfErrorsRightHalf;
+                   Answers studentLeftCutAnswers = studentAnswers.get(cutIndex);
+                    int studentNrOfErrorsLeftCut =
+                            studentLeftCutAnswers.getNrOfDifferencesWith(possibleLeftCutAnswers);
+                    if(studentNrOfErrorsLeftCut > student.getMaxErrorsLeftCut()) {
+                        break;
+                    } else {
+                        nrOfErrorsLeftCutArray[i] = studentNrOfErrorsLeftCut;
+                    }
                 }
 
-                if(i == nrOfStudents - 1) {
-                    bruteForceAnswers.put(leftHalfAnswers, nrOfErrorsArray);
+                if(i == students.length - 1) {
+                    bruteForceLeftCutAnswers.put(possibleLeftCutAnswers,
+                            nrOfErrorsLeftCutArray);
                 }
             }
         }
 
-        return bruteForceAnswers;
+        return bruteForceLeftCutAnswers;
     }
 
-    public static List<Answers> bruteForceRightHalf(Answers leftHalfAnswers, int cut,
-            int nrOfQuestions, int nrOfStudents, Student[] students,
-            Map<Answers, int[]> bruteForceLeftHalfAnswers) {
-        List<Answers> bruteForceAnswers = new ArrayList<>();
-        int[] nrOfErrorsArray = bruteForceLeftHalfAnswers.get(leftHalfAnswers);
-        int[] bestValue = getIndexOfBestValue(nrOfErrorsArray, cut, nrOfQuestions);
+    private static int getBestLeftCutStudentIndex(Student[] students) {
+        int bestLeftCutStudentIndex = -1;
+        int minMaxErrorsLeftCut = Integer.MAX_VALUE;
 
-        Student student = students[bestValue[0]];
-        Answers studentAnswers = student.getAnswers();
-
-        int nrOfErrorsRightHalf = bestValue[1];
-        KDifferencesAnswersIterator it = null;
-        if(nrOfErrorsRightHalf <= (nrOfQuestions - cut) / 2) {
-            it = new KDifferencesAnswersIterator(
-                        studentAnswers.get(cut, nrOfQuestions),
-                        nrOfErrorsRightHalf);
-        } else {
-            it = new KDifferencesAnswersIterator(
-                        studentAnswers.getCompliment(cut, nrOfQuestions),
-                        nrOfQuestions - cut - nrOfErrorsRightHalf);
+        for(int i = 0; i < students.length; i++) {
+            Student student = students[i];
+            int minMaxErrorsStudentLeftCut = Math.min(student.getMaxErrorsLeftCut(),
+                    student.getMaxErrorsComplimentLeftCut());
+            if(minMaxErrorsStudentLeftCut < minMaxErrorsLeftCut) {
+                bestLeftCutStudentIndex = i;
+                minMaxErrorsLeftCut = minMaxErrorsStudentLeftCut;
+            }
         }
 
-        while(it.hasNext()) {
-            Answers rightHalfAnswers = it.next();
+        return bestLeftCutStudentIndex;
+    }
 
-            for(int i = 0; i < nrOfStudents; i++) {
+    private static Answers[] getPossibleLeftCutAnswersArray(Student student, int cutIndex) {
+        Answers leftCutAnswers = student.getAnswers().get(cutIndex);
+        int maxErrorsLeftCutAnswers = student.getMaxErrorsLeftCut();
+
+        if(student.getMaxErrorsComplimentLeftCut() < cutIndex) {
+            leftCutAnswers = student.getAnswers().getCompliment(cutIndex);
+            maxErrorsLeftCutAnswers = student.getMaxErrorsComplimentLeftCut();
+        }
+
+        int nrOfPossibleLeftCutAnswers = sumBinomial(
+                leftCutAnswers.getNrOfQuestions(), maxErrorsLeftCutAnswers);
+        Answers[] possibleLeftCutAnswersArray = new Answers[nrOfPossibleLeftCutAnswers];
+        Queue<Answers> queue = new LinkedList<>();
+        queue.offer(leftCutAnswers);
+        for(int i = 0; i < nrOfPossibleLeftCutAnswers; i++) {
+            Answers possibleLeftCutAnswers = queue.poll();
+
+            for(int j = possibleLeftCutAnswers.getLastFlippedIndex() + 1;
+                    j < possibleLeftCutAnswers.getNrOfQuestions(); j++) {
+                queue.offer(possibleLeftCutAnswers.changeAnswer(j));
+            }
+
+            possibleLeftCutAnswersArray[i] = possibleLeftCutAnswers;
+        }
+
+        return possibleLeftCutAnswersArray;
+    }
+
+    /**
+     *
+     * @param students
+     * @param cutIndex
+     * @return A map where the keys are the possible right cut answers and the
+     * values are arrays of needed numbers of errors of every student's left cut
+     * answers with respect to the key to get the student's score.
+     */
+    private static Map<Answers, int[]> bruteForceRightCut(Student[] students,
+            int cutIndex) {
+        Map<Answers, int[]> bruteForceRightCutAnswers = new HashMap<>();
+
+        int bestRightCutStudentIndex = getBestRightCutStudentIndex(students);
+        Student student = students[bestRightCutStudentIndex];
+        int nrOfQuestions = student.getAnswers().getNrOfQuestions();
+
+        Answers[] possibleRightCutAnswersArray = getPossibleRightCutAnswersArray(student,
+                cutIndex);
+        for(Answers possibleRightCutAnswers : possibleRightCutAnswersArray) {
+            int[] nrOfNeededErrorsLeftCutArray = new int[students.length];
+
+            for(int i = 0; i < students.length; i++) {
                 student = students[i];
-                studentAnswers = student.getAnswers();
-                Answers studentRightHalfAnswers = studentAnswers.get(cut, nrOfQuestions);
-                nrOfErrorsRightHalf = nrOfErrorsArray[i];
-                if(studentRightHalfAnswers.getNrOfDifferencesWith(rightHalfAnswers) !=
-                        nrOfErrorsRightHalf) {
-                    break;
+                Answers studentAnswers = student.getAnswers();
+
+                if(student.getMaxErrorsComplimentRightCut() < nrOfQuestions - cutIndex) {
+                    Answers studentComplimentRightCutAnswers = studentAnswers.getCompliment(
+                                cutIndex, nrOfQuestions);
+                    int studentNrOfErrorsComplimentRightCut =
+                            studentComplimentRightCutAnswers.getNrOfDifferencesWith(possibleRightCutAnswers);
+                    if(studentNrOfErrorsComplimentRightCut
+                            > student.getMaxErrorsComplimentRightCut()) {
+                        break;
+                    } else {
+                        nrOfNeededErrorsLeftCutArray[i] = cutIndex -
+                            (student.getScore() - studentNrOfErrorsComplimentRightCut);
+                    }
+                } else {
+                   Answers studentRightCutAnswers = studentAnswers.get(cutIndex, nrOfQuestions);
+                    int studentNrOfErrorsRightCut =
+                            studentRightCutAnswers.getNrOfDifferencesWith(possibleRightCutAnswers);
+                    if(studentNrOfErrorsRightCut > student.getMaxErrorsRightCut()) {
+                        break;
+                    } else {
+                        nrOfNeededErrorsLeftCutArray[i] = nrOfQuestions -
+                                student.getScore() - studentNrOfErrorsRightCut;
+                    }
                 }
 
-                if(i == nrOfStudents - 1) {
-                    bruteForceAnswers.add(leftHalfAnswers.concatenate(
-                            rightHalfAnswers, nrOfQuestions - cut));
+                if(i == students.length - 1) {
+                    bruteForceRightCutAnswers.put(possibleRightCutAnswers,
+                            nrOfNeededErrorsLeftCutArray);
                 }
             }
         }
 
-        return bruteForceAnswers;
+        return bruteForceRightCutAnswers;
+    }
+    
+    private static int getBestRightCutStudentIndex(Student[] students) {
+        int bestRightCutStudentIndex = -1;
+        int minMaxErrorsRightCut = Integer.MAX_VALUE;
+
+        for(int i = 0; i < students.length; i++) {
+            Student student = students[i];
+            int minMaxErrorsStudentRightCut = Math.min(student.getMaxErrorsRightCut(),
+                    student.getMaxErrorsComplimentRightCut());
+            if(minMaxErrorsStudentRightCut < minMaxErrorsRightCut) {
+                bestRightCutStudentIndex = i;
+                minMaxErrorsRightCut = minMaxErrorsStudentRightCut;
+            }
+        }
+
+        return bestRightCutStudentIndex;
+    }    
+    
+    private static Answers[] getPossibleRightCutAnswersArray(Student student, int cutIndex) {
+        int nrOfQuestions = student.getAnswers().getNrOfQuestions();
+        Answers rightCutAnswers = student.getAnswers().get(cutIndex, nrOfQuestions);
+        int maxErrorsRightCutAnswers = student.getMaxErrorsRightCut();
+
+        if(student.getMaxErrorsComplimentRightCut() < nrOfQuestions - cutIndex) {
+            rightCutAnswers = student.getAnswers().getCompliment(cutIndex, nrOfQuestions);
+            maxErrorsRightCutAnswers = student.getMaxErrorsComplimentRightCut();
+        }
+
+        int nrOfPossibleRightCutAnswers = sumBinomial(
+                rightCutAnswers.getNrOfQuestions(), maxErrorsRightCutAnswers);
+        Answers[] possibleRightCutAnswersArray = new Answers[nrOfPossibleRightCutAnswers];
+        Queue<Answers> queue = new LinkedList<>();
+        queue.offer(rightCutAnswers);
+        for(int i = 0; i < nrOfPossibleRightCutAnswers; i++) {
+            Answers possibleRightCutAnswers = queue.poll();
+
+            for(int j = possibleRightCutAnswers.getLastFlippedIndex() + 1;
+                    j < possibleRightCutAnswers.getNrOfQuestions(); j++) {
+                queue.offer(possibleRightCutAnswers.changeAnswer(j));
+            }
+
+            possibleRightCutAnswersArray[i] = possibleRightCutAnswers;
+        }
+
+        return possibleRightCutAnswersArray;
     }
 
-    private static int[] getIndexOfBestValue(int[] nrOfErrorsArray, int cut,
-            int nrOfQuestions) {
-        int[] max = {-1, Integer.MIN_VALUE};
-        int[] min = {-1, Integer.MAX_VALUE};
-
-        for(int i = 0; i < nrOfErrorsArray.length; i++) {
-            if(nrOfErrorsArray[i] > max[1]) {
-                max[0] = i;
-                max[1] = nrOfErrorsArray[i];
-            }
-            if(nrOfErrorsArray[i] < min[1]) {
-                min[0] = i;
-                min[1] = nrOfErrorsArray[i];
-            }
+    private static int sumBinomial(int n, int k)
+    {
+        int sum = 1;
+        int binomial = 1;
+        for(int i = 1, m = n; i <= k; i++, m--) {
+            binomial = binomial * m / i;
+            sum += binomial;
         }
 
-        if(nrOfQuestions - cut - max[1] < min[1]) {
-            return max;
-        } else {
-            return min;
-        }
+        return sum;
     }
 }

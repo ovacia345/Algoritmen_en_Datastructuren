@@ -5,17 +5,24 @@ package assignment2;
  * @author chihab
  * @author N.C.M. van Nistelrooij
  */
-public class Student implements Comparable<Student> {
+public class Student {
     private final Answers answers;
     private final int score;
-    private final int maxErrorsLeftHalf, maxErrorsComplimentLeftHalf;
+    private final int maxErrorsLeftCut, maxErrorsComplimentLeftCut;
+    private final int maxErrorsRightCut, maxErrorsComplimentRightCut;
     
-    public Student(Answers answers, int score,
-            int maxErrorsLeftHalf, int maxErrorsComplimentLeftHalf){
+    public Student(Answers answers, int score, int cutIndex){
         this.answers = answers;
         this.score = score;
-        this.maxErrorsLeftHalf = maxErrorsLeftHalf;
-        this.maxErrorsComplimentLeftHalf = maxErrorsComplimentLeftHalf;
+
+        int leftCutWidth = cutIndex;
+        int rightCutWidth = answers.getNrOfQuestions() - cutIndex;
+
+        maxErrorsLeftCut = Math.min(leftCutWidth, answers.getNrOfQuestions() - score);
+        maxErrorsComplimentLeftCut = Math.min(leftCutWidth, score);
+
+        maxErrorsRightCut = Math.min(rightCutWidth, answers.getNrOfQuestions() - score);
+        maxErrorsComplimentRightCut = Math.min(rightCutWidth, score);
     }
     
     public Answers getAnswers() {
@@ -26,19 +33,19 @@ public class Student implements Comparable<Student> {
         return score;
     }
 
-    public int getMaxErrorsLeftHalf() {
-        return maxErrorsLeftHalf;
+    public int getMaxErrorsLeftCut() {
+        return maxErrorsLeftCut;
     }
 
-    public int getMaxErrorsComplimentLeftHalf() {
-        return maxErrorsComplimentLeftHalf;
+    public int getMaxErrorsComplimentLeftCut() {
+        return maxErrorsComplimentLeftCut;
     }
 
-    @Override
-    public int compareTo(Student otherStudent) {
-        int certaintyLeftHalf = maxErrorsLeftHalf + maxErrorsComplimentLeftHalf;
-        int otherStudentCertaintyLeftHalf = otherStudent.getMaxErrorsLeftHalf()
-                + otherStudent.getMaxErrorsComplimentLeftHalf();
-        return Integer.compare(certaintyLeftHalf, otherStudentCertaintyLeftHalf);
+    public int getMaxErrorsRightCut() {
+        return maxErrorsRightCut;
+    }
+
+    public int getMaxErrorsComplimentRightCut() {
+        return maxErrorsComplimentRightCut;
     }
 }
