@@ -1,5 +1,6 @@
 package assignment2;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -195,56 +196,67 @@ public class Assignment2 {
                 rightCutResults.entrySet().iterator();
         Entry<int[], Answers> rightCutResult = rightCutResultsIterator.next();
 
+        Entry<int[], Answers>[] cutResults = (Entry<int[], Answers>[])Array
+                .newInstance(leftCutResult.getClass(), 2);
+        cutResults[0] = leftCutResult;
+        cutResults[1] = rightCutResult;
+
         Answers correctAnswers = null;
-        long nrOfSolutions = 0;
+        long totalNrOfSolutions = 0;
         while(leftCutResultsIterator.hasNext() || rightCutResultsIterator.hasNext()) {
-            int comparison = compareIntegerArrays(leftCutResult.getKey(),
-                    rightCutResult.getKey(), nrOfStudents);
-            if(comparison < 0) {
-                if(leftCutResultsIterator.hasNext()) {
-                    leftCutResult = leftCutResultsIterator.next();
-                }
-            } else if(comparison > 0) {
-                if(rightCutResultsIterator.hasNext()) {
-                    rightCutResult = rightCutResultsIterator.next();
-                }
+            correctAnswers = cutResults[0].getValue();
+            totalNrOfSolutions += getNrOfSolutions(nrOfStudents,
+                    leftCutResultsIterator, rightCutResultsIterator,
+                    cutResults, correctAnswers);
+        }
+        
+        if(totalNrOfSolutions == 1) {
+            return correctAnswers.toString();
+        } else {
+            return totalNrOfSolutions + " solutions";
+        }
+    }
+
+    private static long getNrOfSolutions(int nrOfStudents,
+            Iterator<Entry<int[], Answers>> leftCutResultsIterator,
+            Iterator<Entry<int[], Answers>> rightCutResultsIterator,
+            Entry<int[], Answers>[] cutResults, Answers correctAnswers) {
+        int comparison = compareIntegerArrays(cutResults[0].getKey(),
+                    cutResults[1].getKey(), nrOfStudents);
+        if(comparison < 0 && leftCutResultsIterator.hasNext()) {
+            cutResults[0] = leftCutResultsIterator.next();
+            return 0;
+        } else if(comparison > 0 && rightCutResultsIterator.hasNext()) {
+            cutResults[1] = rightCutResultsIterator.next();
+            return 0;
+        } else {
+            correctAnswers.concatenate(cutResults[1].getValue());
+
+            int[] counters = {0, 0};
+            cutResults[0] = getDifferentCutResult(nrOfStudents,
+                    leftCutResultsIterator, cutResults[0], counters, 0);
+            cutResults[1] = getDifferentCutResult(nrOfStudents,
+                    rightCutResultsIterator, cutResults[1], counters, 1);
+
+            return (long)counters[0] * (long)counters[1];
+        }
+    }
+    
+    private static Entry<int[], Answers> getDifferentCutResult(int nrOfStudents,
+            Iterator<Entry<int[], Answers>> cutResultsIterator,
+            Entry<int[], Answers> cutResult, int[] counters, int counterIndex) {
+        int[] initialCutResultKey = cutResult.getKey();
+        while(compareIntegerArrays(initialCutResultKey,
+                cutResult.getKey(), nrOfStudents) == 0) {
+            counters[counterIndex]++;
+            if(cutResultsIterator.hasNext()) {
+                cutResult = cutResultsIterator.next();
             } else {
-                correctAnswers = leftCutResult.getValue().concatenate(
-                        rightCutResult.getValue());
-
-                int[] leftCutResultKey = leftCutResult.getKey();
-                int leftCounter = 0;
-                while(compareIntegerArrays(leftCutResultKey,
-                        leftCutResult.getKey(), nrOfStudents) == 0) {
-                    leftCounter++;
-                    if(leftCutResultsIterator.hasNext()) {
-                        leftCutResult = leftCutResultsIterator.next();
-                    } else {
-                        break;
-                    }
-                }
-
-                int[] rightCutResultKey = rightCutResult.getKey();
-                int rightCounter = 0;
-                while(compareIntegerArrays(rightCutResultKey,
-                        rightCutResult.getKey(), nrOfStudents) == 0) {
-                    rightCounter++;
-                    if(rightCutResultsIterator.hasNext()) {
-                        rightCutResult = rightCutResultsIterator.next();
-                    } else {
-                        break;
-                    }
-                }
-
-                nrOfSolutions += (long)leftCounter * (long)rightCounter;                
+                break;
             }
         }
 
-        if(nrOfSolutions == 1) {
-            return correctAnswers.toString();
-        } else {
-            return nrOfSolutions + " solutions";
-        }
+        return cutResult;
     }
 
     private static int sumBinomial(int n, int k) {

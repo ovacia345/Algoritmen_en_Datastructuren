@@ -7,9 +7,9 @@ import java.util.BitSet;
  * @author N.C.M. van Nistelrooij
  */
 public class Answers {
-    private final BitSet bitSet;
     private final int lastChangedAnswerIndex;
-    private final int nrOfQuestions;
+    private int nrOfQuestions;
+    private BitSet bitSet;
 
     public Answers(BitSet bitSet, int lastChangedAnswerIndex, int nrOfQuestions) {
         this.bitSet = bitSet;
@@ -44,16 +44,17 @@ public class Answers {
         return getCompliment(0, toIndex);
     }
 
-    public BitSet getBitSet() {
-        return bitSet;
-    }
-
     public int getLastChangedAnswerIndex() {
         return lastChangedAnswerIndex;
     }
 
     public int getNrOfQuestions() {
         return nrOfQuestions;
+    }
+
+
+    public BitSet getBitSet() {
+        return bitSet;
     }
 
     public Answers changeAnswer(int index) {
@@ -68,7 +69,7 @@ public class Answers {
         return differences.cardinality();
     }
 
-    public Answers concatenate(Answers otherAnswers) {
+    public void concatenate(Answers otherAnswers) {
         long answersLong = bitSet.length() > 0
                 ? bitSet.toLongArray()[0] : 0;
         long otherAnswersLong = otherAnswers.getBitSet().length() > 0
@@ -76,7 +77,9 @@ public class Answers {
 
         int nrOfOtherQuestions = otherAnswers.getNrOfQuestions();
         long concatenation = otherAnswersLong | (answersLong << nrOfOtherQuestions);
-        return new Answers(concatenation, nrOfQuestions + nrOfOtherQuestions);
+
+        bitSet = BitSet.valueOf(new long[]{concatenation});
+        nrOfQuestions += nrOfOtherQuestions;
     }
 
     @Override
