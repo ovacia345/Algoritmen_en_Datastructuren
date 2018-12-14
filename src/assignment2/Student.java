@@ -8,21 +8,12 @@ package assignment2;
 public class Student {
     private final Answers answers;
     private final int score;
-    private final int maxErrorsLeftCut, maxErrorsComplimentLeftCut;
-    private final int maxErrorsRightCut, maxErrorsComplimentRightCut;
+
+    private StudentCutInfo cutInfo;
     
-    public Student(Answers answers, int score, int cutIndex){
+    public Student(Answers answers, int score){
         this.answers = answers;
         this.score = score;
-
-        int leftCutWidth = cutIndex;
-        int rightCutWidth = answers.getNrOfQuestions() - cutIndex;
-
-        maxErrorsLeftCut = Math.min(leftCutWidth, answers.getNrOfQuestions() - score);
-        maxErrorsComplimentLeftCut = Math.min(leftCutWidth, score);
-
-        maxErrorsRightCut = Math.min(rightCutWidth, answers.getNrOfQuestions() - score);
-        maxErrorsComplimentRightCut = Math.min(rightCutWidth, score);
     }
     
     public Answers getAnswers() {
@@ -33,19 +24,15 @@ public class Student {
         return score;
     }
 
-    public int getMaxErrorsLeftCut() {
-        return maxErrorsLeftCut;
+    public void setStudentCutInfo(int cutFromIndex, int cutToIndex) {
+        cutInfo = new StudentCutInfo(this, cutFromIndex, cutToIndex);
     }
 
-    public int getMaxErrorsComplimentLeftCut() {
-        return maxErrorsComplimentLeftCut;
+    public int getMaxScoreCut() {
+        return cutInfo.getMaxScoreCut();
     }
 
-    public int getMaxErrorsRightCut() {
-        return maxErrorsRightCut;
-    }
-
-    public int getMaxErrorsComplimentRightCut() {
-        return maxErrorsComplimentRightCut;
-    }
+    public int getMaxNrOfErrorsCut() {
+        return cutInfo.getMaxNrOfErrorsCut();
+    }           
 }

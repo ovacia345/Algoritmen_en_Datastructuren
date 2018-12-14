@@ -30,18 +30,10 @@ public class Answers {
         return new Answers(get, toIndex - fromIndex);
     }
 
-    public Answers get(int toIndex) {
-        return get(0, toIndex);
-    }
-
-    public Answers getCompliment(int fromIndex, int toIndex) {
+    public Answers getComplement(int fromIndex, int toIndex) {
         BitSet compliment = bitSet.get(nrOfQuestions - toIndex, nrOfQuestions - fromIndex);
         compliment.flip(0, toIndex - fromIndex);
         return new Answers(compliment, toIndex - fromIndex);
-    }
-
-    public Answers getCompliment(int toIndex) {
-        return getCompliment(0, toIndex);
     }
 
     public int getLastChangedAnswerIndex() {
