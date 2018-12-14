@@ -24,9 +24,9 @@ public class Assignment2 {
         Student[] students = readStudents(nrOfStudents, nrOfQuestions, cutIndex);
 
         SortedMap<int[], Answers> leftCutResults =
-                bruteForceCut(students, 0, cutIndex, true);
+                bruteForceCut(students, 0, cutIndex);
         SortedMap<int[], Answers> rightCutResults =
-                bruteForceCut(students, cutIndex, nrOfQuestions, false);
+                bruteForceCut(students, cutIndex, nrOfQuestions);
 
         String solution = combineResults(leftCutResults, rightCutResults,
                 nrOfStudents, nrOfQuestions, cutIndex);
@@ -49,12 +49,20 @@ public class Assignment2 {
     }
 
     private static SortedMap<int[], Answers> bruteForceCut(Student[] students,
-            int cutFromIndex, int cutToIndex, boolean isLeftCut) {
+            int cutFromIndex, int cutToIndex) {
         Student minMaxErrorsStudent = getMinMaxErrorsStudent(students);
-        Answers[] possibleAnswersArray = getPossibleAnswersArray(
+
+        Answers[] possibleCutAnswersArray = getPossibleCutAnswersArray(
                 minMaxErrorsStudent, cutFromIndex, cutToIndex);
-        return getBruteForceCutResults(students, possibleAnswersArray,
-                cutFromIndex, cutToIndex, isLeftCut);
+
+        SortedMap<int[], Answers> bruteForceCutResults = new TreeMap<>(
+                (a1, a2) -> compareIntegerArrays(a1, a2));
+        for(Answers possibleCutAnswers : possibleCutAnswersArray) {
+            checkPossibleCutAnswers(students, cutFromIndex, cutToIndex,
+                    bruteForceCutResults, possibleCutAnswers);
+        }
+
+        return bruteForceCutResults;
     }
 
     private static Student getMinMaxErrorsStudent(Student[] students) {
@@ -74,106 +82,108 @@ public class Assignment2 {
         return minMaxErrorsStudent;
     }
 
-    private static Answers[] getPossibleAnswersArray(Student student,
+    private static Answers[] getPossibleCutAnswersArray(Student student,
             int cutFromIndex, int cutToIndex) {
-        Answers answers = student.getAnswers().get(cutFromIndex, cutToIndex);
+        Answers cutAnswers = student.getAnswers().get(cutFromIndex, cutToIndex);
         int maxErrorsAnswers = student.getMaxErrorsRightCut();
 
         if(maxErrorsAnswers > student.getMaxErrorsComplimentRightCut()) {
-            answers = student.getAnswers().getCompliment(cutFromIndex, cutToIndex);
+            cutAnswers = student.getAnswers().getCompliment(cutFromIndex, cutToIndex);
             maxErrorsAnswers = student.getMaxErrorsComplimentRightCut();
         }
 
         int nrOfPossibleAnswers = sumBinomial(
-                answers.getNrOfQuestions(), maxErrorsAnswers);
+                cutAnswers.getNrOfQuestions(), maxErrorsAnswers);
         Answers[] possibleAnswersArray = new Answers[nrOfPossibleAnswers];
         Queue<Answers> queue = new LinkedList<>();
-        queue.offer(answers);
+        queue.offer(cutAnswers);
         for(int i = 0; i < nrOfPossibleAnswers; i++) {
-            answers = queue.poll();
+            cutAnswers = queue.poll();
 
-            for(int j = answers.getLastChangedAnswerIndex() + 1;
-                    j < answers.getNrOfQuestions(); j++) {
-                queue.offer(answers.changeAnswer(j));
+            for(int j = cutAnswers.getLastChangedAnswerIndex() + 1;
+                    j < cutAnswers.getNrOfQuestions(); j++) {
+                queue.offer(cutAnswers.changeAnswer(j));
             }
 
-            possibleAnswersArray[i] = answers;
+            possibleAnswersArray[i] = cutAnswers;
         }
 
         return possibleAnswersArray;
     }
 
-    private static SortedMap<int[], Answers> getBruteForceCutResults(
-            Student[] students, Answers[] possibleAnswersArray,
-            int cutFromIndex, int cutToIndex, boolean isLeftCut) {
-        SortedMap<int[], Answers> bruteForceCutResults = new TreeMap<>(
-                (a1, a2) -> compareIntegerArrays(a1, a2));
+    private static void checkPossibleCutAnswers(Student[] students,
+            int cutFromIndex, int cutToIndex,
+            SortedMap<int[], Answers> bruteForceCutResults,
+            Answers possibleCutAnswers) {
+        int[] nrOfErrorsLeftCutArray = new int[students.length + 1];
 
-        for(Answers possibleCutAnswers : possibleAnswersArray) {
-            int[] nrOfErrorsLeftCutArray = new int[students.length + 1];
+        for(int i = 0; i < students.length; i++) {
+            Student student = students[i];
 
-            for(int i = 0; i < students.length; i++) {
-                Student student = students[i];
-
-                if(!areAcceptedAnswers(possibleCutAnswers, student, cutFromIndex,
-                        cutToIndex, isLeftCut, nrOfErrorsLeftCutArray, i)) {
-                    break;
-                } else if(i == students.length - 1) {
-                    nrOfErrorsLeftCutArray[students.length] = counter++;
-                    bruteForceCutResults.put(nrOfErrorsLeftCutArray,
-                            possibleCutAnswers);
-                }
+            if(!areAcceptedAnswers(possibleCutAnswers, student, cutFromIndex,
+                    cutToIndex, nrOfErrorsLeftCutArray, i)) {
+                break;
+            } else if(i == students.length - 1) {
+                nrOfErrorsLeftCutArray[students.length] = counter++;
+                bruteForceCutResults.put(nrOfErrorsLeftCutArray,
+                        possibleCutAnswers);
             }
         }
-
-        return bruteForceCutResults;
     }
 
     private static boolean areAcceptedAnswers(Answers cutAnswers, Student student,
-            int cutFromIndex, int cutToIndex, boolean isLeftCut,
-            int[] nrOfErrorsLeftCutArray, int studentIndex) {
+            int cutFromIndex, int cutToIndex, int[] nrOfErrorsLeftCutArray,
+            int studentIndex) {
         if(student.getMaxErrorsComplimentRightCut() < student.getMaxErrorsRightCut()) {
             Answers studentComplimentCutAnswers = student.getAnswers()
                     .getCompliment(cutFromIndex, cutToIndex);
             int studentNrOfErrorsComplimentCut =
                     studentComplimentCutAnswers.getNrOfDifferencesWith(cutAnswers);
 
-            if(studentNrOfErrorsComplimentCut
-                    > student.getMaxErrorsComplimentRightCut()) {
-                return false;
-            } else {
-                int studentNrOfErrorsCut = cutToIndex - cutFromIndex -
-                        studentNrOfErrorsComplimentCut;
-                int nrOfErrorsLeftCut = getNrOfErrorsLeftCut(student,
-                        cutFromIndex, cutToIndex, isLeftCut,
-                        studentNrOfErrorsCut);
-                nrOfErrorsLeftCutArray[studentIndex] = nrOfErrorsLeftCut;
-                return true;
-            }
+            return isNrOfErrorsCutWithinMaxErrorsCut(student, cutFromIndex,
+                    cutToIndex, nrOfErrorsLeftCutArray, studentIndex,
+                    studentNrOfErrorsComplimentCut);
         } else {
             Answers studentCutAnswers = student.getAnswers()
                     .get(cutFromIndex, cutToIndex);
             int studentNrOfErrorsCut =
                     studentCutAnswers.getNrOfDifferencesWith(cutAnswers);
 
-            if(studentNrOfErrorsCut > student.getMaxErrorsRightCut()) {
-                return false;
-            } else {
-                int nrOfErrorsLeftCut = getNrOfErrorsLeftCut(student,
-                        cutFromIndex, cutToIndex, isLeftCut,
-                        studentNrOfErrorsCut);
-                nrOfErrorsLeftCutArray[studentIndex] = nrOfErrorsLeftCut;
-                return true;
-            }
+            return isNrOfErrorsCutWithinMaxErrorsCut(student, cutFromIndex,
+                    cutToIndex, nrOfErrorsLeftCutArray, studentIndex,
+                    studentNrOfErrorsCut);
         }
     }
 
-    private static int getNrOfErrorsLeftCut(Student student, int cutFromIndex,
-            int cutToIndex, boolean isLeftCut, int studentNrOfErrorsCut) {
-        if(isLeftCut) {
-            return studentNrOfErrorsCut;
+    private static boolean isNrOfErrorsCutWithinMaxErrorsCut(Student student,
+            int cutFromIndex, int cutToIndex, int[] nrOfErrorsLeftCutArray,
+            int studentIndex, int studentNrOfErrorsCut) {
+        int maxErrorsCut = Math.min(student.getMaxErrorsRightCut(),
+                student.getMaxErrorsComplimentRightCut());
+        if(studentNrOfErrorsCut > maxErrorsCut) {
+            return false;
         } else {
-            return cutToIndex - student.getScore() - studentNrOfErrorsCut;
+            int nrOfErrorsLeftCut = getNrOfErrorsLeftCut(student, cutFromIndex,
+                    cutToIndex, studentNrOfErrorsCut);
+            nrOfErrorsLeftCutArray[studentIndex] = nrOfErrorsLeftCut;
+            return true;
+        }
+    }
+
+    private static int getNrOfErrorsLeftCut(Student student, 
+            int cutFromIndex, int cutToIndex, int studentNrOfErrorsCut) {
+        if(cutFromIndex == 0) {
+            if(student.getMaxErrorsComplimentLeftCut() < cutToIndex) {
+                return cutToIndex - studentNrOfErrorsCut;
+            } else {
+                return studentNrOfErrorsCut;
+            }
+        } else {
+            if(student.getMaxErrorsComplimentRightCut() < cutToIndex - cutFromIndex) {
+                return cutFromIndex - (student.getScore() - studentNrOfErrorsCut);
+            } else {
+                return cutToIndex - student.getScore() - studentNrOfErrorsCut;
+            }
         }
     }
 
@@ -185,28 +195,25 @@ public class Assignment2 {
         Arrays.fill(sentinel, Integer.MAX_VALUE);
 
         leftCutResults.put(sentinel, new Answers(0, cutIndex));
-        Iterator<Entry<int[], Answers>> leftCutResultsIterator =
+        Iterator<Entry<int[], Answers>> leftCutResultIterator =
                 leftCutResults.entrySet().iterator();
-        Entry<int[], Answers> leftCutResult =
-                leftCutResultsIterator.next();
+        Entry<int[], Answers> leftCutResult = leftCutResultIterator.next();
+        Entry<int[], Answers>[] cutResults = (Entry<int[], Answers>[])
+                Array.newInstance(leftCutResult.getClass(), 2);
+        cutResults[0] = leftCutResult;
 
         rightCutResults.put(sentinel, new Answers(0,
                 nrOfQuestions - cutIndex));
-        Iterator<Entry<int[], Answers>> rightCutResultsIterator =
+        Iterator<Entry<int[], Answers>> rightCutResultIterator =
                 rightCutResults.entrySet().iterator();
-        Entry<int[], Answers> rightCutResult = rightCutResultsIterator.next();
-
-        Entry<int[], Answers>[] cutResults = (Entry<int[], Answers>[])Array
-                .newInstance(leftCutResult.getClass(), 2);
-        cutResults[0] = leftCutResult;
-        cutResults[1] = rightCutResult;
+        cutResults[1] = rightCutResultIterator.next();
 
         Answers correctAnswers = null;
         long totalNrOfSolutions = 0;
-        while(leftCutResultsIterator.hasNext() || rightCutResultsIterator.hasNext()) {
+        while(leftCutResultIterator.hasNext() || rightCutResultIterator.hasNext()) {
             correctAnswers = cutResults[0].getValue();
             totalNrOfSolutions += getNrOfSolutions(nrOfStudents,
-                    leftCutResultsIterator, rightCutResultsIterator,
+                    leftCutResultIterator, rightCutResultIterator,
                     cutResults, correctAnswers);
         }
         
@@ -231,32 +238,32 @@ public class Assignment2 {
             return 0;
         } else {
             correctAnswers.concatenate(cutResults[1].getValue());
+            
+            int nrOfEqualLeftCutResultKeys = getNrOfEqualCutResultKeys(nrOfStudents,
+                    leftCutResultsIterator, cutResults, 0);
+            int nrOfEqualRightCutResultKeys = getNrOfEqualCutResultKeys(nrOfStudents,
+                    rightCutResultsIterator, cutResults, 1);
 
-            int[] counters = {0, 0};
-            cutResults[0] = getDifferentCutResult(nrOfStudents,
-                    leftCutResultsIterator, cutResults[0], counters, 0);
-            cutResults[1] = getDifferentCutResult(nrOfStudents,
-                    rightCutResultsIterator, cutResults[1], counters, 1);
-
-            return (long)counters[0] * (long)counters[1];
+            return (long)nrOfEqualLeftCutResultKeys *(long)nrOfEqualRightCutResultKeys;
         }
     }
     
-    private static Entry<int[], Answers> getDifferentCutResult(int nrOfStudents,
+    private static int getNrOfEqualCutResultKeys(int nrOfStudents,
             Iterator<Entry<int[], Answers>> cutResultsIterator,
-            Entry<int[], Answers> cutResult, int[] counters, int counterIndex) {
-        int[] initialCutResultKey = cutResult.getKey();
+            Entry<int[], Answers>[] cutResults, int cutResultIndex) {
+        int nrOfEqualCutResultKeys = 0;
+        int[] initialCutResultKey = cutResults[cutResultIndex].getKey();
         while(compareIntegerArrays(initialCutResultKey,
-                cutResult.getKey(), nrOfStudents) == 0) {
-            counters[counterIndex]++;
-            if(cutResultsIterator.hasNext()) {
-                cutResult = cutResultsIterator.next();
-            } else {
+                cutResults[cutResultIndex].getKey(), nrOfStudents) == 0) {
+            nrOfEqualCutResultKeys++;
+            if(!cutResultsIterator.hasNext()) {
                 break;
+            } else {
+                cutResults[cutResultIndex] = cutResultsIterator.next();
             }
         }
 
-        return cutResult;
+        return nrOfEqualCutResultKeys;
     }
 
     private static int sumBinomial(int n, int k) {
@@ -272,10 +279,10 @@ public class Assignment2 {
 
     private static int compareIntegerArrays(int[] a1, int[] a2,
             int fromIndex, int toIndex) {
-        if(fromIndex < 0 || fromIndex >= a1.length || fromIndex >= a2.length ||
-                toIndex < 0 || toIndex > a1.length || toIndex > a2.length) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+//        if(fromIndex < 0 || fromIndex >= a1.length || fromIndex >= a2.length ||
+//                toIndex < 0 || toIndex > a1.length || toIndex > a2.length) {
+//            throw new ArrayIndexOutOfBoundsException();
+//        }
         for(int i = fromIndex; i < toIndex; i++) {
             if(a1[i] != a2[i]) {
                 return Integer.compare(a1[i], a2[i]);
