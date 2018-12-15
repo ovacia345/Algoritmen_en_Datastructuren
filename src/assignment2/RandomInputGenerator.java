@@ -23,7 +23,7 @@ public class RandomInputGenerator {
                 }
             }
 
-            int score = rand.nextInt(nrOfQuestions + 1);
+            int score = nrOfQuestions / 2;
             input.append(' ').append(score).append('\n');
         }
 
