@@ -22,16 +22,29 @@ public class Assignment2 {
         
         Student[] students = readStudents(nrOfStudents, nrOfQuestions);
 
+//        long exhaustiveTime = System.currentTimeMillis();
+//        SortedMap<int[], Answers> exhaustiveResults =
+//                bruteForceCut(nrOfQuestions, students, 0, nrOfQuestions);
+//
+//        String exhaustiveSolution = exhaustiveSearch(students, exhaustiveResults,
+//                nrOfStudents);
+//        exhaustiveTime = System.currentTimeMillis() - exhaustiveTime;
+//        IOHandler.write(exhaustiveSolution);
+//        IOHandler.write(String.format("Exhaustive time: %dms", exhaustiveTime));
+
+
+        long fastTime = System.currentTimeMillis();
         int cutIndex = nrOfQuestions / 2; // index start of right cut
         SortedMap<int[], Answers> leftCutResults =
-                bruteForceCut(nrOfQuestions, students, 0, cutIndex);
+                bruteForceCut(nrOfQuestions, students, 0, Math.max(1, cutIndex));
         SortedMap<int[], Answers> rightCutResults =
                 bruteForceCut(nrOfQuestions, students, cutIndex, nrOfQuestions);
 
         String solution = combineResults(leftCutResults, rightCutResults,
                 nrOfStudents, nrOfQuestions, cutIndex);
-
+        fastTime = System.currentTimeMillis() - fastTime;
         IOHandler.write(solution);
+//        IOHandler.write(String.format("Algorithm time: %dms", fastTime));
     }
     
     private static Student[] readStudents(int nrOfStudents, int nrOfQuestions) {
@@ -49,10 +62,12 @@ public class Assignment2 {
 
     private static SortedMap<int[], Answers> bruteForceCut(int nrOfQuestions,
             Student[] students, int cutFromIndex, int cutToIndex) {
-        for(Student student : students) {
-            student.setCutInfo(cutFromIndex, cutToIndex);
+        if(cutFromIndex != 0 || cutToIndex != nrOfQuestions || cutToIndex == 1) {
+            for(Student student : students) {
+                student.setCutInfo(cutFromIndex, cutToIndex);
+            }
+            Arrays.sort(students);
         }
-        Arrays.sort(students);
 
         Student student = students[0];
         Answers[] possibleCutAnswersArray = getPossibleCutAnswersArray(
@@ -183,8 +198,10 @@ public class Assignment2 {
             } else if(comparison > 0 && rightCutResultsIterator.hasNext()) {
                 cutResults[1] = rightCutResultsIterator.next();
             } else {
-                correctAnswers = cutResults[0].getValue().concatenate(
-                        cutResults[1].getValue());
+                correctAnswers = cutResults[0].getValue();
+                if(cutIndex != 0) {
+                    correctAnswers = correctAnswers.concatenate(cutResults[1].getValue());
+                }
 
                 int nrOfEqualLeftCutResultsKeys = getNrOfEqualCutResultsKeys(nrOfStudents,
                         leftCutResultsIterator, cutResults, 0);

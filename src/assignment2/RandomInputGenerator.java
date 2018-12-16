@@ -16,14 +16,14 @@ public class RandomInputGenerator {
         
         for(int i = 0; i < nrOfStudents; i++) {
             for(int j = 0; j < nrOfQuestions; j++) {
-                if(rand.nextBoolean()) {
+                if(rand.nextDouble() < 0.5d) {
                     input.append('1');
                 } else {
                     input.append('0');
                 }
             }
 
-            int score = nrOfQuestions / 2;
+            int score = rand.nextInt(nrOfQuestions + 1);
             input.append(' ').append(score).append('\n');
         }
 

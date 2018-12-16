@@ -7,7 +7,7 @@ package assignment2;
  */
 public class Main {
     public static void main(String[] args) {
-//        RandomInputGenerator.generateRandomInput(3, 20);
+        RandomInputGenerator.generateRandomInput(2, 3);
         Assignment2.runAssignment();
     }
 }

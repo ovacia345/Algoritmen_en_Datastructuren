@@ -14,6 +14,8 @@ public class Student implements Comparable<Student> {
     public Student(Answers answers, int score){
         this.answers = answers;
         this.score = score;
+        maxScoreCut = answers.getNrOfQuestions();
+        maxNrOfErrorsCut = answers.getNrOfQuestions();
     }
     
     public Answers getAnswers() {
