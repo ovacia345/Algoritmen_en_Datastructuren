@@ -17,34 +17,23 @@ public class Assignment2 {
     private static int counter = 0;
 
     public static void runAssignment() {
+        long time = System.currentTimeMillis();
         int nrOfStudents = IOHandler.readInteger();
         int nrOfQuestions = IOHandler.readInteger();
         
         Student[] students = readStudents(nrOfStudents, nrOfQuestions);
 
-//        long exhaustiveTime = System.currentTimeMillis();
-//        SortedMap<int[], Answers> exhaustiveResults =
-//                bruteForceCut(nrOfQuestions, students, 0, nrOfQuestions);
-//
-//        String exhaustiveSolution = exhaustiveSearch(students, exhaustiveResults,
-//                nrOfStudents);
-//        exhaustiveTime = System.currentTimeMillis() - exhaustiveTime;
-//        IOHandler.write(exhaustiveSolution);
-//        IOHandler.write(String.format("Exhaustive time: %dms", exhaustiveTime));
-
-
-        long fastTime = System.currentTimeMillis();
         int cutIndex = nrOfQuestions / 2; // index start of right cut
+
         SortedMap<int[], Answers> leftCutResults =
                 bruteForceCut(nrOfQuestions, students, 0, Math.max(1, cutIndex));
+
         SortedMap<int[], Answers> rightCutResults =
                 bruteForceCut(nrOfQuestions, students, cutIndex, nrOfQuestions);
 
         String solution = combineResults(leftCutResults, rightCutResults,
                 nrOfStudents, nrOfQuestions, cutIndex);
-        fastTime = System.currentTimeMillis() - fastTime;
         IOHandler.write(solution);
-//        IOHandler.write(String.format("Algorithm time: %dms", fastTime));
     }
     
     private static Student[] readStudents(int nrOfStudents, int nrOfQuestions) {
@@ -62,7 +51,7 @@ public class Assignment2 {
 
     private static SortedMap<int[], Answers> bruteForceCut(int nrOfQuestions,
             Student[] students, int cutFromIndex, int cutToIndex) {
-        if(cutFromIndex != 0 || cutToIndex != nrOfQuestions || cutToIndex == 1) {
+        if(cutFromIndex != 0 || cutToIndex != nrOfQuestions || nrOfQuestions == 1) {
             for(Student student : students) {
                 student.setCutInfo(cutFromIndex, cutToIndex);
             }
@@ -95,7 +84,7 @@ public class Assignment2 {
         int studentMinNrOfErrorsCut = nrOfQuestionsCut - student.getMaxScoreCut();
         int studentMaxNrOfErrorsCut = student.getMaxNrOfErrorsCut();
 
-        if(studentMaxNrOfErrorsCut > student.getMaxScoreCut()) {
+        if(student.getMaxNrOfErrorsCut() > student.getMaxScoreCut()) {
             studentCutAnswers = studentCutAnswers.getComplement();
             studentMinNrOfErrorsCut = nrOfQuestionsCut - student.getMaxNrOfErrorsCut();
             studentMaxNrOfErrorsCut = student.getMaxScoreCut();
@@ -133,31 +122,18 @@ public class Assignment2 {
 
         for(int i = 0; i < students.length; i++) {
             Student student = students[i];
-            Answers studentCutAnswers = student.getAnswers().get(cutFromIndex, cutToIndex);
-
-            if(!arePotentialStudentCutAnswers(possibleCutAnswers, student,
-                    studentCutAnswers, cutFromIndex, cutToIndex)) {
-                return null;
-            }
+            Answers studentCutAnswers = student.getAnswers()
+                    .get(cutFromIndex, cutToIndex);
 
             studentScoresLeftCut[i] = getStudentScoreLeftCut(possibleCutAnswers,
-                    student, studentCutAnswers, cutFromIndex, cutToIndex);
+                    student, studentCutAnswers, cutFromIndex);
         }
 
         return studentScoresLeftCut;
     }
 
-    private static boolean arePotentialStudentCutAnswers(Answers possibleCutAnswers,
-            Student student, Answers studentCutAnswers, int cutFromIndex, int cutToIndex) {
-        int studentScoreCut = studentCutAnswers.getNrOfEqualAnswersWith(
-                possibleCutAnswers);
-        int studentNrOfErrorsCut = studentCutAnswers.getNrOfQuestions() - studentScoreCut;
-        return studentScoreCut <= student.getMaxScoreCut() &&
-                studentNrOfErrorsCut <= student.getMaxNrOfErrorsCut();
-    }
-
     private static int getStudentScoreLeftCut(Answers potentialStudentCutAnswers,
-            Student student, Answers studentCutAnswers, int cutFromIndex, int cutToIndex) {
+            Student student, Answers studentCutAnswers, int cutFromIndex) {
         int studentScoreCut = studentCutAnswers.getNrOfEqualAnswersWith(
                         potentialStudentCutAnswers);
         if(cutFromIndex == 0) { // Left cut
@@ -199,7 +175,7 @@ public class Assignment2 {
                 cutResults[1] = rightCutResultsIterator.next();
             } else {
                 correctAnswers = cutResults[0].getValue();
-                if(cutIndex != 0) {
+                if(nrOfQuestions > 1) {
                     correctAnswers = correctAnswers.concatenate(cutResults[1].getValue());
                 }
 
@@ -238,36 +214,6 @@ public class Assignment2 {
         return nrOfEqualCutResultsKeys;
     }
 
-    private static String exhaustiveSearch(Student[] students,
-            SortedMap<int[], Answers> potentialAnswersMap,
-            int nrOfStudents) {
-        int[] studentScores = getStudentScores(students, nrOfStudents);
-        int nrOfSolutions = 0;
-        Answers correctAnswers = null;
-        for(Entry<int[], Answers> potentialAnswers : potentialAnswersMap.entrySet()) {
-            if(compareIntegerArrays(studentScores, potentialAnswers.getKey(),
-                    nrOfStudents) == 0) {
-                correctAnswers = potentialAnswers.getValue();
-                nrOfSolutions++;
-            }
-        }
-
-        if(nrOfSolutions == 1) {
-            return correctAnswers.toString();
-        } else {
-            return nrOfSolutions + " solutions";
-        }
-    }
-
-    private static int[] getStudentScores(Student[] students, int nrOfStudents) {
-        int[] studentScores = new int[nrOfStudents];
-        for(int i = 0; i < nrOfStudents; i++) {
-            studentScores[i] = students[i].getScore();
-        }
-
-        return studentScores;
-    }
-
     private static int sumBinomial(int n, int k) {
         if(k == -1) {
             return 0;
@@ -283,23 +229,14 @@ public class Assignment2 {
         return sum;
     }
 
-    private static int compareIntegerArrays(int[] a1, int[] a2,
-            int fromIndex, int toIndex) {
-//        if(fromIndex < 0 || fromIndex >= a1.length || fromIndex >= a2.length ||
-//                toIndex < 0 || toIndex > a1.length || toIndex > a2.length) {
-//            throw new ArrayIndexOutOfBoundsException();
-//        }
-        for(int i = fromIndex; i < toIndex; i++) {
+    private static int compareIntegerArrays(int[] a1, int[] a2, int toIndex) {
+        for(int i = 0; i < toIndex; i++) {
             if(a1[i] != a2[i]) {
                 return Integer.compare(a1[i], a2[i]);
             }
         }
 
         return 0;
-    }
-
-    private static int compareIntegerArrays(int[] a1, int[] a2, int toIndex) {
-        return compareIntegerArrays(a1, a2, 0, toIndex);
     }
 
     private static int compareIntegerArrays(int[] a1, int[] a2) {
