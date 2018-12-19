@@ -17,23 +17,28 @@ public class Assignment2 {
     private static int counter = 0;
 
     public static void runAssignment() {
-        long time = System.currentTimeMillis();
         int nrOfStudents = IOHandler.readInteger();
         int nrOfQuestions = IOHandler.readInteger();
         
         Student[] students = readStudents(nrOfStudents, nrOfQuestions);
 
-        int cutIndex = nrOfQuestions / 2; // index start of right cut
+        if(nrOfQuestions == 1) {
+            String solution = getOneQuestionSolution(nrOfStudents, nrOfQuestions,
+                    students);
+            IOHandler.write(solution);
+        } else {
+            int cutIndex = nrOfQuestions / 2; // index start of right cut
 
-        SortedMap<int[], Answers> leftCutResults =
-                bruteForceCut(nrOfQuestions, students, 0, Math.max(1, cutIndex));
+            SortedMap<int[], Answers> leftCutResults =
+                    bruteForceCut(nrOfQuestions, students, 0, Math.max(1, cutIndex));
 
-        SortedMap<int[], Answers> rightCutResults =
-                bruteForceCut(nrOfQuestions, students, cutIndex, nrOfQuestions);
+            SortedMap<int[], Answers> rightCutResults =
+                    bruteForceCut(nrOfQuestions, students, cutIndex, nrOfQuestions);
 
-        String solution = combineResults(leftCutResults, rightCutResults,
-                nrOfStudents, nrOfQuestions, cutIndex);
-        IOHandler.write(solution);
+            String solution = combineResults(leftCutResults, rightCutResults,
+                    nrOfStudents, nrOfQuestions, cutIndex);
+            IOHandler.write(solution);
+        }
     }
     
     private static Student[] readStudents(int nrOfStudents, int nrOfQuestions) {
@@ -49,14 +54,26 @@ public class Assignment2 {
         return students;
     }
 
+    private static String getOneQuestionSolution(int nrOfStudents, int nrOfQuestions,
+            Student[] students) {
+        int answer = (students[0].getScore() +
+                students[0].getAnswers().getBitSet().length()) % 2;
+        for(Student student : students) {
+            if(answer != (student.getScore() +
+                    student.getAnswers().getBitSet().length()) % 2) {
+                return "0 solutions";
+            }
+        }
+
+        return Integer.toString(1 - answer);
+    }
+
     private static SortedMap<int[], Answers> bruteForceCut(int nrOfQuestions,
             Student[] students, int cutFromIndex, int cutToIndex) {
-        if(nrOfQuestions > 1) {
-            for(Student student : students) {
-                student.setCutInfo(cutFromIndex, cutToIndex);
-            }
-            Arrays.sort(students);
+        for(Student student : students) {
+            student.setCutInfo(cutFromIndex, cutToIndex);
         }
+        Arrays.sort(students);
 
         Student student = students[0];
         Answers[] possibleCutAnswersArray = getPossibleCutAnswersArray(
@@ -165,8 +182,10 @@ public class Assignment2 {
         Answers correctAnswers = null;
         long totalNrOfSolutions = 0;
         while(leftCutResultsIterator.hasNext() || rightCutResultsIterator.hasNext()) {
-            int comparison = compareIntegerArrays(cutResults[0].getKey(),
-                    cutResults[1].getKey(), nrOfStudents);
+            int[] bruteForceLeftCutStudentScoresLeftCut = cutResults[0].getKey();
+            int[] bruteForceRightCutStudentScoresLeftCut = cutResults[1].getKey();
+            int comparison = compareIntegerArrays(bruteForceLeftCutStudentScoresLeftCut,
+                    bruteForceRightCutStudentScoresLeftCut, nrOfStudents);
             if(comparison < 0 && leftCutResultsIterator.hasNext()) {
                 cutResults[0] = leftCutResultsIterator.next();
             } else if(comparison > 0 && rightCutResultsIterator.hasNext()) {
