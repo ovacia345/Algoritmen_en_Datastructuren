@@ -51,7 +51,7 @@ public class Assignment2 {
 
     private static SortedMap<int[], Answers> bruteForceCut(int nrOfQuestions,
             Student[] students, int cutFromIndex, int cutToIndex) {
-        if(cutFromIndex != 0 || cutToIndex != nrOfQuestions || nrOfQuestions == 1) {
+        if(nrOfQuestions > 1) {
             for(Student student : students) {
                 student.setCutInfo(cutFromIndex, cutToIndex);
             }
@@ -67,10 +67,8 @@ public class Assignment2 {
         for(Answers possibleCutAnswers : possibleCutAnswersArray) {
             int[] studentScoresLeftCut = getStudentScoresLeftCut(students,
                     cutFromIndex, cutToIndex, possibleCutAnswers);
-            if(studentScoresLeftCut != null) {
-                studentScoresLeftCut[students.length] = counter++;
-                bruteForceCutResults.put(studentScoresLeftCut, possibleCutAnswers);
-            }
+            studentScoresLeftCut[students.length] = counter++;
+            bruteForceCutResults.put(studentScoresLeftCut, possibleCutAnswers);
         }
 
         return bruteForceCutResults;
@@ -132,10 +130,10 @@ public class Assignment2 {
         return studentScoresLeftCut;
     }
 
-    private static int getStudentScoreLeftCut(Answers potentialStudentCutAnswers,
+    private static int getStudentScoreLeftCut(Answers possibleCutAnswers,
             Student student, Answers studentCutAnswers, int cutFromIndex) {
         int studentScoreCut = studentCutAnswers.getNrOfEqualAnswersWith(
-                        potentialStudentCutAnswers);
+                        possibleCutAnswers);
         if(cutFromIndex == 0) { // Left cut
             return studentScoreCut;
         } else { // Right cut
