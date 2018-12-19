@@ -23,8 +23,7 @@ public class Assignment2 {
         Student[] students = readStudents(nrOfStudents, nrOfQuestions);
 
         if(nrOfQuestions == 1) {
-            String solution = getOneQuestionSolution(nrOfStudents, nrOfQuestions,
-                    students);
+            String solution = getOneQuestionSolution(students);
             IOHandler.write(solution);
         } else {
             int cutIndex = nrOfQuestions / 2; // index start of right cut
@@ -54,8 +53,7 @@ public class Assignment2 {
         return students;
     }
 
-    private static String getOneQuestionSolution(int nrOfStudents, int nrOfQuestions,
-            Student[] students) {
+    private static String getOneQuestionSolution(Student[] students) {
         int answer = (students[0].getScore() +
                 students[0].getAnswers().getBitSet().length()) % 2;
         for(Student student : students) {
@@ -191,10 +189,8 @@ public class Assignment2 {
             } else if(comparison > 0 && rightCutResultsIterator.hasNext()) {
                 cutResults[1] = rightCutResultsIterator.next();
             } else {
-                correctAnswers = cutResults[0].getValue();
-                if(nrOfQuestions > 1) {
-                    correctAnswers = correctAnswers.concatenate(cutResults[1].getValue());
-                }
+                correctAnswers = cutResults[0].getValue()
+                        .concatenate(cutResults[1].getValue());
 
                 int nrOfEqualLeftCutResultsKeys = getNrOfEqualCutResultsKeys(nrOfStudents,
                         leftCutResultsIterator, cutResults, 0);
