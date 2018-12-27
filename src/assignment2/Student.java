@@ -26,6 +26,12 @@ public class Student implements Comparable<Student> {
         return score;
     }
 
+    /**
+     * This method modifies variables dependent on the current cut,
+     * e.g. the maximal score/errors in the current cut. 
+     * @param cutFromIndex Index for the start of the cut
+     * @param cutToIndex Index for the end of the cut
+     */
     public void setCutInfo(int cutFromIndex, int cutToIndex) {
         int nrOfQuestionsCut = cutToIndex - cutFromIndex;
 
@@ -43,6 +49,11 @@ public class Student implements Comparable<Student> {
         return maxNrOfErrorsCut;
     }           
 
+    /**
+     * Students are compared based on either the maximal score or errors of a current cut.
+     * @param otherStudent
+     * @return -1 if smaller, 0 if equal else 1
+     */
     @Override
     public int compareTo(Student otherStudent) {
         int minCutInfoMember = Math.min(maxScoreCut, maxNrOfErrorsCut);

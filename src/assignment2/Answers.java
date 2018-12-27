@@ -52,23 +52,39 @@ public class Answers {
     public BitSet getBitSet() {
         return bitSet;
     }
-
+    /**
+     * This method changes the answer of a question to its complement, 
+     * e.g. if a question with index 12 was 1 it will change to 0
+     * @param index the index of the question
+     * @return a new set of answers
+     */
     public Answers changeAnswer(int index) {
         BitSet changedAnswers = (BitSet)bitSet.clone();
         changedAnswers.flip(nrOfQuestions - 1 - index);
         return new Answers(changedAnswers, index, nrOfQuestions);
     }
 
-    public int getNrOfDifferentAnswersWith(Answers otherAnswers) {
+    /**
+     * This method returns the number of different answers,
+     * the answer bitsets are compared via XOR operations.
+     * @param otherAnswers
+     * @return 
+     */
+    public int getNrOfDifferentAnswers(Answers otherAnswers) {
         BitSet differences = (BitSet)bitSet.clone();
         differences.xor(otherAnswers.getBitSet());
         return differences.cardinality();
     }
 
-    public int getNrOfEqualAnswersWith(Answers otherAnswers) {
-        return nrOfQuestions - getNrOfDifferentAnswersWith(otherAnswers);
+    public int getNrOfEqualAnswers(Answers otherAnswers) {
+        return nrOfQuestions - getNrOfDifferentAnswers(otherAnswers);
     }
-
+    
+    /**
+     * This method is used to concatenate two sets of answers 
+     * @param otherAnswers the other set of answers
+     * @return a new set of answers, i.e. a concatenation of two answer sets
+     */
     public Answers concatenate(Answers otherAnswers) {
         long answersLong = bitSet.length() > 0 ? bitSet.toLongArray()[0] : 0;
         long otherAnswersLong = otherAnswers.getBitSet().length() > 0
