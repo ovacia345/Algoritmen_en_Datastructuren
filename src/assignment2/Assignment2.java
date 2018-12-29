@@ -1,58 +1,71 @@
 package assignment2;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- *
+ * Class that runs the practicum assignment 2 algorithm.
  * @author N.C.M. van Nistelrooij
+ * @author C Amghane
  */
 public class Assignment2 {
-    private static int counter = 0;
     /**
-     * 
+     * The counter used for domain separation in the {@code SortedMap}s.
+     */
+    private static int counter = 0;
+
+    /**
+     * The method that runs the algorithm. It reads the problem from standard
+     * input and writes the solution to standard output.
      */
     public static void runAssignment() {
-        //reading nr of students  
         int nrOfStudents = IOHandler.readInteger();
-        //reaing nr of questions
         int nrOfQuestions = IOHandler.readInteger();
-        //list of students
+
+        // The array of students is read from standard input.
         Student[] students = readStudents(nrOfStudents, nrOfQuestions);
 
-        if(nrOfQuestions == 1) {
+        if(nrOfQuestions == 1) { // The algorithm does not work when this holds.
             String solution = getOneQuestionSolution(students);
             IOHandler.write(solution);
         } else {
-            int cutIndex = nrOfQuestions / 2; // index start of right cut
-            // two maps are created, each map represents the bruteforce results of a cut.
-            // The maps contain a list of integers and answersets, 
-            // the integer lists represent the scores
-            // the answersets represent the possible answers in a cut.
-            
+            // Index of start of right cut.
+            int cutIndex = nrOfQuestions / 2;
+
+            // Brute force on the left cut. It returns a {@code SortedMap} where
+            // the values are the left cut answers and the keys are the
+            // corresponding student scores on the left cut.
             SortedMap<int[], Answers> leftCutResults =
-                    bruteForceCut(nrOfQuestions, students, 0, Math.max(1, cutIndex));
+                    bruteForceCut(students, 0, cutIndex);
 
+            // Brute force on the right cut. It returns a {@code SortedMap} where
+            // the values are the right cut answers and the keys are the
+            // corresponding student scores on the left cut.
             SortedMap<int[], Answers> rightCutResults =
-                    bruteForceCut(nrOfQuestions, students, cutIndex, nrOfQuestions);
+                    bruteForceCut(students, cutIndex, nrOfQuestions);
 
+            // The brute force results are combined and the solution is returned.
             String solution = combineResults(leftCutResults, rightCutResults,
                     nrOfStudents, nrOfQuestions, cutIndex);
+
+            // The solution is written to standard output.
             IOHandler.write(solution);
         }
     }
+
     /**
-     * This method creates an list of students,
-     * each student has a score and set of answers.
-     * @param nrOfStudents number of students
-     * @param nrOfQuestions number of questions
-     * @return a list of students
+     * This method initializes an array of students, where
+     * each student has answers and a score.
+     * @param nrOfStudents Number of students.
+     * @param nrOfQuestions Number of questions.
+     * @return An array of {@code Student}s.
      */
     private static Student[] readStudents(int nrOfStudents, int nrOfQuestions) {
         Student[] students = new Student[nrOfStudents];
@@ -66,54 +79,57 @@ public class Assignment2 {
         
         return students;
     }
+
     /**
-     * This method returns the solution of there is only one question
-     * @param students the number of students
-     * @return A solution if there exists one, else 0 solutions
+     * Returns the solution if there is only one question.
+     * @param students The array of students.
+     * @return A {@code String} representation of the solution.
      */
     private static String getOneQuestionSolution(Student[] students) {
-        int answer = (students[0].getScore() +
+        int answerComplement = (students[0].getScore() +
                 students[0].getAnswers().getBitSet().length()) % 2;
         for(Student student : students) {
-            if(answer != (student.getScore() +
+            if(answerComplement != (student.getScore() +
                     student.getAnswers().getBitSet().length()) % 2) {
                 return "0 solutions";
             }
         }
 
-        return Integer.toString(1 - answer);
+        return Integer.toString(1 - answerComplement);
     }
 
     /**
-     * This method is responsible for bruteforce in a cut
-     * 
-     * @param nrOfQuestions number of questions 
+     * Brute forces a cut.     *
      * @param students number of students
-     * @param cutFromIndex starting index of a cut
-     * @param cutToIndex ending index of a cut
-     * @return possible answers for questions in the cut
+     * @param cutFromIndex Inclusive index of the start of the cut
+     * @param cutToIndex Exclusive index of the end of the cut.
+     * @return A {@code SortedMap} where
+     * the values are the cut answers and the keys are the
+     * corresponding student scores on the left cut.
      */
-    private static SortedMap<int[], Answers> bruteForceCut(int nrOfQuestions,
-            Student[] students, int cutFromIndex, int cutToIndex) {
-        //create cuts for each student
+    private static SortedMap<int[], Answers> bruteForceCut(Student[] students,
+            int cutFromIndex, int cutToIndex) {
         for(Student student : students) {
             student.setCutInfo(cutFromIndex, cutToIndex);
         }
-        //sort the students, students are compared based on max or minimal score in a cut
+        // Students are sorted based on the minimal cut info member.
         Arrays.sort(students);
-        
+
+        // Student with the smallest cut info member.
         Student student = students[0];
-        // Get all the possible answer sets.
+        // Get all the possible cut answers given the cut info and cut answers
+        // of {@code student}.
         Answers[] possibleCutAnswersArray = getPossibleCutAnswersArray(
                 student, cutFromIndex, cutToIndex);
-        // Bruteforce the possibilities to find 
+
+        // A red-black tree is used as data-structure.
         SortedMap<int[], Answers> bruteForceCutResults = new TreeMap<>(
                 (a1, a2) -> compareIntegerArrays(a1, a2));
         for(Answers possibleCutAnswers : possibleCutAnswersArray) {
-            //List of scores corresponding to each possible answer set, and a counter to make sure no duplicate entries exist in this list
+            // Array of (needed) student scores on the left cut given
+            // {@code possibleCutAnswers} as left/right cut answers.
             int[] studentScoresLeftCut = getStudentScoresLeftCut(students,
                     cutFromIndex, cutToIndex, possibleCutAnswers);
-            studentScoresLeftCut[students.length] = counter++;
             bruteForceCutResults.put(studentScoresLeftCut, possibleCutAnswers);
         }
 
@@ -121,70 +137,68 @@ public class Assignment2 {
     }
 
     /**
-     * This method generates the possible answer sets of a certain cut
-     * @param student a student
-     * @param cutFromIndex the starting index of a cut
-     * @param cutToIndex the ending index of a cut
+     * Generates all the possible cut answers given the cut info and cut
+     * answers of {@code student}.
+     * @param student A student.
+     * @param cutFromIndex Inclusive index of the start of the cut
+     * @param cutToIndex Exclusive index of the end of the cut.
      * @return list of possible answer sets given a student and cut.
      */
     private static Answers[] getPossibleCutAnswersArray(Student student,
             int cutFromIndex, int cutToIndex) {
-        //The answers of a given student in a certain cut
-        Answers studentCutAnswers = student.getAnswers().get(cutFromIndex, cutToIndex);
-        
+        // The answers of a given student in a certain cut.
+        Answers studentCutAnswers = student.getAnswers().get(cutFromIndex, cutToIndex);        
        
         int nrOfQuestionsCut = cutToIndex - cutFromIndex;
-        //max score cut is min(nrofquestionsincut, score)
-        // the minimal number of errors in a cut is the nr of questions in that cut minus the maximal score in that cut
         int studentMinNrOfErrorsCut = nrOfQuestionsCut - student.getMaxScoreCut();
-        // the maximal number of errors in a cut is the smallest value in the nr of errors or the number of questions in a cut 
         int studentMaxNrOfErrorsCut = student.getMaxNrOfErrorsCut();
-        
-        // if the max nr of errors in a cut is higher than the max score in a cut 
-        // then the score is very low and the minimal amount or errors in a cut is nr of questions in that cut minus maximal errors in the cut
-        // the maximum nr of errors in the cut will be maximum score of a cut. Because in this situation the maxnroferrorscut will be the total nr of errors 
-        // and the maxscorecut will be the nr of questions in the cut
+
+        // If the score of the student is very low, possible cut answers are
+        // derived from the complement of the student's cut answers.
         if(student.getMaxNrOfErrorsCut() > student.getMaxScoreCut()) {
             studentCutAnswers = studentCutAnswers.getComplement();
             studentMinNrOfErrorsCut = nrOfQuestionsCut - student.getMaxNrOfErrorsCut();
             studentMaxNrOfErrorsCut = student.getMaxScoreCut();
         }
 
-        
+        // The number of cut answers that have too few errors.
         int startNumber = sumBinomial(nrOfQuestionsCut, studentMinNrOfErrorsCut - 1);
+        // The number of cut answers that have maximally
+        // {@code studentMaxNrOfErrorsCut} errors.
         int endNumber = sumBinomial(nrOfQuestionsCut, studentMaxNrOfErrorsCut);
-        // the startNumber and endNumber variables represent the number of possible answer sets given the min or max number of errors in a cut
-        // the actual nr of possible answers in a cut is the difference between the two.
+        // The number of possible cut answers is the difference between the two.
         int nrOfPossibleCutAnswers = endNumber - startNumber;
         Answers[] possibleCutAnswersArray = new Answers[nrOfPossibleCutAnswers];
 
         Queue<Answers> queue = new LinkedList<>();
         queue.offer(studentCutAnswers);
         
-        // The following for loops adds all the possible answersets to the queue.
+        // The following for loops adds all the possible cut answers to the array.
         for(int i = 0; i < endNumber; i++) {
-            Answers possibleCutAnswers = queue.poll();
+            Answers cutAnswers = queue.poll();
 
-            for(int j = possibleCutAnswers.getLastChangedAnswerIndex() + 1;
+            for(int j = cutAnswers.getLastChangedAnswerIndex() + 1;
                     j < nrOfQuestionsCut; j++) {
-                Answers changedAnswers = possibleCutAnswers.changeAnswer(j);
-                queue.offer(changedAnswers);
+                Answers changedCutAnswers = cutAnswers.changeAnswer(j);
+                queue.offer(changedCutAnswers);
             }
 
             if(i >= startNumber) {
-                possibleCutAnswersArray[i - startNumber] = possibleCutAnswers;
+                possibleCutAnswersArray[i - startNumber] = cutAnswers;
             }    
         }
 
         return possibleCutAnswersArray;
     }
+
     /**
-     * This method calculates scores corresponding to possible answers in a cut 
-     * @param students list of students
-     * @param cutFromIndex starting index of a cut
-     * @param cutToIndex ending index of a cut
-     * @param possibleCutAnswers sets of possible answers of a cut
-     * @return a list of integers representing scores of possible answers sets in a cut.
+     * Calculates (needed) student scores on the left cut given possible
+     * left/right cut answers.
+     * @param students Array of students.
+     * @param cutFromIndex Inclusive index of the start of the cut.
+     * @param cutToIndex Exclusive index of the end of the cut.
+     * @param possibleCutAnswers Possible left/right cut answers.
+     * @return Array of (needed) student scores on the left cut.
      */
     private static int[] getStudentScoresLeftCut(Student[] students,
             int cutFromIndex, int cutToIndex, Answers possibleCutAnswers) {
@@ -199,15 +213,20 @@ public class Assignment2 {
                     student, studentCutAnswers, cutFromIndex);
         }
 
+        // Domain seperation.
+        studentScoresLeftCut[students.length] = counter++;
+
         return studentScoresLeftCut;
     }
+
     /**
-     * This method returns the score of a certain cut.
-     * @param possibleCutAnswers set of possible answers in a certain cut
-     * @param student a student
-     * @param studentCutAnswers the students answers in certain cut
-     * @param cutFromIndex the starting index of a certain cut
-     * @return the students' score in a certain cut
+     * Gets (needed) students score on the left cut given possible left/right
+     * cut answers, the student and the student left/right cut answers.
+     * @param possibleCutAnswers Possible left/right cut answers.
+     * @param student Array of students.
+     * @param studentCutAnswers The student's answers in the left/right cut.
+     * @param cutFromIndex Inclusive index of the start of the cut.
+     * @return the student's (needed) score in the left cut.
      */ 
     private static int getStudentScoreLeftCut(Answers possibleCutAnswers,
             Student student, Answers studentCutAnswers, int cutFromIndex) {
@@ -220,86 +239,106 @@ public class Assignment2 {
         }
     }
 
-    
+    /**
+     * Combines the brute force results to return the solution.
+     * @param leftCutResults The results of the brute force on the left cut.
+     * @param rightCutResults The results of the brute force on the right cut.
+     * @param nrOfStudents The number of students.
+     * @param nrOfQuestions The number of questions.
+     * @param cutIndex Index of start of right cut.
+     * @return A {@code String} representation of the solution.
+     */
     private static String combineResults(
             SortedMap<int[], Answers> leftCutResults,
             SortedMap<int[], Answers> rightCutResults,
             int nrOfStudents, int nrOfQuestions, int cutIndex) {
-        // sentinel is used to remember the last "visited" index
+        // An extra element is put at the back of {@code leftCutResults} and
+        // {@code rightCutResults}.
         int[] sentinel = new int[nrOfStudents + 1];
         Arrays.fill(sentinel, Integer.MAX_VALUE);
-
-        //create iterators for both cuts and add empty answers lists with sentinel value to left and right cutresults list
-        
         leftCutResults.put(sentinel, new Answers(0, cutIndex));
+        rightCutResults.put(sentinel, new Answers(0, nrOfQuestions - cutIndex));
+
+        // Create iterators for both cut results maps entries.
         Iterator<Entry<int[], Answers>> leftCutResultsIterator =
                 leftCutResults.entrySet().iterator();
-        Entry<int[], Answers> leftCutResult = leftCutResultsIterator.next();
-        Entry<int[], Answers>[] cutResults = (Entry<int[], Answers>[])
-                Array.newInstance(leftCutResult.getClass(), 2);
-        cutResults[0] = leftCutResult;
-
-        rightCutResults.put(sentinel, new Answers(0,
-                nrOfQuestions - cutIndex));
         Iterator<Entry<int[], Answers>> rightCutResultsIterator =
                 rightCutResults.entrySet().iterator();
-        cutResults[1] = rightCutResultsIterator.next();
+        
+        // Create a cut results list and put first left and right cut results in
+        // the list.
+        List<Entry<int[], Answers>> cutResults = new ArrayList<>(2);
+        cutResults.add(leftCutResultsIterator.next());
+        cutResults.add(rightCutResultsIterator.next());
 
         Answers correctAnswers = null;
         long totalNrOfSolutions = 0;
-        // loop through the left and right cut 
-        // compare the left and right cut integer arrays to eachother 
-        // if they are equal then we have found a possible solution, add solution and continue
-        // else move on to nect left or right cut result depending on comparison output.
         while(leftCutResultsIterator.hasNext() || rightCutResultsIterator.hasNext()) {
-            int[] bruteForceLeftCutStudentScores = cutResults[0].getKey();
-            int[] bruteForceRightCutStudentScores = cutResults[1].getKey();
-            int comparison = compareIntegerArrays(bruteForceLeftCutStudentScores,
-                    bruteForceRightCutStudentScores, nrOfStudents);
-            if(comparison < 0 && leftCutResultsIterator.hasNext()) {
-                cutResults[0] = leftCutResultsIterator.next();
-            } else if(comparison > 0 && rightCutResultsIterator.hasNext()) {
-                cutResults[1] = rightCutResultsIterator.next();
-            } else {
-                correctAnswers = cutResults[0].getValue()
-                        .concatenate(cutResults[1].getValue());
+            // The (needed) left cut student scores are retreived from the cut results.
+            int[] leftCutResultsStudentScores = cutResults.get(0).getKey();
+            int[] rightCutResultsStudentScores = cutResults.get(1).getKey();
 
+            int comparison = compareIntegerArrays(leftCutResultsStudentScores,
+                    rightCutResultsStudentScores, nrOfStudents);
+            if(comparison < 0 && leftCutResultsIterator.hasNext()) {
+                // The left cut result is smaller than the right cut result,
+                // so the next left cut result is put in {@code cutResults}.
+                cutResults.set(0, leftCutResultsIterator.next());
+            } else if(comparison > 0 && rightCutResultsIterator.hasNext()) {
+                // The right cut result is smaller than the left cut result,
+                // so the next right cut result is put in {@code cutResults}.
+                cutResults.set(1, rightCutResultsIterator.next());
+            } else { // A solution has been found.
+                // The correct full answers are the answers of the left cut
+                // concatenated with the answers of the right cut.
+                correctAnswers = cutResults.get(0).getValue()
+                        .concatenate(cutResults.get(1).getValue());
+
+                // The number of equal (needed) left cut student scores for
+                // each cut results iterator is calculated.
                 int nrOfEqualLeftCutResultsKeys = getNrOfEqualCutResultsKeys(nrOfStudents,
                         leftCutResultsIterator, cutResults, 0);
                 int nrOfEqualRightCutResultsKeys = getNrOfEqualCutResultsKeys(nrOfStudents,
                         rightCutResultsIterator, cutResults, 1);
 
+                // The number of solutions with the current (needed) left cut
+                // student scores is added to {@code totalNrOfSolutions}.
                 totalNrOfSolutions += (long)nrOfEqualLeftCutResultsKeys *
                         (long)nrOfEqualRightCutResultsKeys;
             }
         }
-        // return solution(s)
+
+        // The proper solution {@code String} representation is returned.
         if(totalNrOfSolutions == 1) {
             return correctAnswers.toString();
         } else {
             return totalNrOfSolutions + " solutions";
         }
     }
+
     /**
-     * This method returns the number of cuts with equal scores..
-     * @param nrOfStudents number of students
-     * @param cutResultsIterator iterator over a map of scores and answersets
-     * @param cutResults a map containing the scores and answers of a cut
-     * @param cutResultIndex index representing the cut, i.e. 0 = left, 1 = right 
-     * @return integer representing the number of equal cuts, e.g. answer sets with equal scores
+     * Gets the number of equal (needed) left cut student scores for the given
+     * left/right cut results iterator.
+     * @param nrOfStudents The number of students.
+     * @param cutResultsIterator Iterator over the left/right cut results map entries.
+     * @param cutResults The current cut results map entries. {@code cutResults[0]}
+     * is the left cut results map entry and {@code cutResults[1]} is the right one.
+     * @param cutResultIndex Index representing the cut. 0 = left, and 1 = right.
+     * @return number of equal (needed) left cut student scores for the given
+     * left/right cut results iterator.
      */
     private static int getNrOfEqualCutResultsKeys(int nrOfStudents,
             Iterator<Entry<int[], Answers>> cutResultsIterator,
-            Entry<int[], Answers>[] cutResults, int cutResultIndex) {
+            List<Entry<int[], Answers>> cutResults, int cutResultIndex) {
         int nrOfEqualCutResultsKeys = 0;
-        int[] initialCutResultKey = cutResults[cutResultIndex].getKey();
+        int[] initialCutResultKey = cutResults.get(cutResultIndex).getKey();
         while(compareIntegerArrays(initialCutResultKey,
-                cutResults[cutResultIndex].getKey(), nrOfStudents) == 0) {
+                cutResults.get(cutResultIndex).getKey(), nrOfStudents) == 0) {
             nrOfEqualCutResultsKeys++;
             if(!cutResultsIterator.hasNext()) {
                 return nrOfEqualCutResultsKeys;
             } else {
-                cutResults[cutResultIndex] = cutResultsIterator.next();
+                cutResults.set(cutResultIndex, cutResultsIterator.next());
             }
         }
 
@@ -307,15 +346,18 @@ public class Assignment2 {
     }
     
     /**
-     * This method returns the number of possible solution sets 
-     * @param n number of question in the cut
-     * @param k score/number of errors
-     * @return number of possible solutions.
+     * Computes the sum of binomial coefficients like (n 0) + (n 1) + ... +
+     * (n k-1) + (n k).
+     * @param n The top number in the binomial coefficient.
+     * @param k The maximum bottom number in the binomial coefficient.
+     * @return Sum of binomial coefficients.
      */
     private static int sumBinomial(int n, int k) {
+        // Mathematically not sound, but it is needed for the assignment.
         if(k == -1) {
             return 0;
         }
+
         int binomial = 1;
         int sum = 1;
         for(int i = 1, m = n; i <= k; i++, m--) {
@@ -325,12 +367,15 @@ public class Assignment2 {
 
         return sum;
     }
+
     /**
-     * Compare two arrays containing integers up to a certain index
-     * @param a1 array of integers
-     * @param a2 array of integers
-     * @param toIndex the index up to which the values of the arrays should be compared
-     * @return 0 if equal, -1 if smaller else 1
+     * Compare two integer arrays up to a certain index.
+     * @param a1 First integer array.
+     * @param a2 Second integer array.
+     * @param toIndex The exclusive index up to which the values of the arrays
+     * should be compared.
+     * @return -1 if {@code a1} is smaller than {@code a2}, 0 if they are
+     * equal and 1 otherwise up to {@code toIndex}.
      */
     private static int compareIntegerArrays(int[] a1, int[] a2, int toIndex) {
         for(int i = 0; i < toIndex; i++) {
@@ -340,11 +385,13 @@ public class Assignment2 {
         }
         return 0;
     }
+
     /**
-     * Compare two arrays containing integers 
-     * @param a1
-     * @param a2
-     * @return 0 if equal, -1 if smaller else 1
+     * Compare two integer arrays
+     * @param a1 First integer array.
+     * @param a2 Second integer array.
+     * @return -1 if {@code a1} is smaller than {@code a2}, 0 if they are
+     * equal and 1 otherwise.
      */
     private static int compareIntegerArrays(int[] a1, int[] a2) {
         int toIndex = Math.min(a1.length, a2.length);

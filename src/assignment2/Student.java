@@ -1,21 +1,25 @@
 package assignment2;
 
 /**
- *
- * @author chihab
+ * Class that stores the answers and score of a student. It also stores
+ * the maximum score and the maximum number of errors for a given cut size.
  * @author N.C.M. van Nistelrooij
+ * @author C Amghane
  */
 public class Student implements Comparable<Student> {
     private final Answers answers;
     private final int score;
     private int maxScoreCut;
     private int maxNrOfErrorsCut;
-    
+
+    /**
+     * The answers and score are initialized.
+     * @param answers the answers the student gave.
+     * @param score the score the student got.
+     */
     public Student(Answers answers, int score){
         this.answers = answers;
         this.score = score;
-        maxScoreCut = answers.getNrOfQuestions();
-        maxNrOfErrorsCut = answers.getNrOfQuestions();
     }
     
     public Answers getAnswers() {
@@ -27,10 +31,10 @@ public class Student implements Comparable<Student> {
     }
 
     /**
-     * This method modifies variables dependent on the current cut,
-     * e.g. the maximal score/errors in the current cut. 
-     * @param cutFromIndex Index for the start of the cut
-     * @param cutToIndex Index for the end of the cut
+     * This method sets the maximum score and the maximum number of errors
+     * for the given cut indices.
+     * @param cutFromIndex Inclusive index for the start of the cut.
+     * @param cutToIndex Exclusive index for the end of the cut.
      */
     public void setCutInfo(int cutFromIndex, int cutToIndex) {
         int nrOfQuestionsCut = cutToIndex - cutFromIndex;
@@ -50,9 +54,10 @@ public class Student implements Comparable<Student> {
     }           
 
     /**
-     * Students are compared based on either the maximal score or errors of a current cut.
-     * @param otherStudent
-     * @return -1 if smaller, 0 if equal else 1
+     * Students are compared based on their smallest cut info member.
+     * @param otherStudent The student this student is compared to.
+     * @return -1 if this student's smallest cut info member is smaller than the
+     * other student's smallest cut info member, 0 if they are equal and 1 otherwise.
      */
     @Override
     public int compareTo(Student otherStudent) {

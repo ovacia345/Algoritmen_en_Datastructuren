@@ -1,13 +1,13 @@
 package assignment2;
 
 /**
- *
- * @author chihab
- * @author N.C.M. van Nistlerooij
+ * The main class with the main method.
+ * @author N.C.M. van Nistelrooij
+ * @author C Amghane
  */
 public class Main {
     public static void main(String[] args) {
-//        RandomInputGenerator.generateRandomInput(2, 40);
+        RandomInputGenerator.generateRandomInput(2, 40);
         Assignment2.runAssignment();
     }
 }
