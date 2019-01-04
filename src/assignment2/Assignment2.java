@@ -291,8 +291,10 @@ public class Assignment2 {
             } else { // A solution has been found.
                 // The correct full answers are the answers of the left cut
                 // concatenated with the answers of the right cut.
-                correctAnswers = cutResults.get(0).getValue()
-                        .concatenate(cutResults.get(1).getValue());
+                if(correctAnswers ==  null) {
+                    correctAnswers = cutResults.get(0).getValue()
+                            .concatenate(cutResults.get(1).getValue());
+                }
 
                 // The number of equal (needed) left cut student scores for
                 // each cut results iterator is calculated.
